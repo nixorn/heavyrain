@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 import redis
+import uuid
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
+from lib.player import new_player
+
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -17,6 +20,7 @@ thread = None
 
 def background_thread():
     """Example of how to send server generated events to clients."""
+
     count = 0
     while True:
         socketio.sleep(10)
@@ -99,7 +103,7 @@ def test_connect():
     global thread
     if thread is None:
         thread = socketio.start_background_task(target=background_thread)
-    emit('my response', {'data': 'Connected', 'count': 0})
+    emit('start_game', {'data': new_player(), 'count': 0})
 
 
 @socketio.on('disconnect', namespace='/test')
