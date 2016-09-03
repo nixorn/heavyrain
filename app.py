@@ -103,7 +103,9 @@ def test_connect():
     global thread
     if thread is None:
         thread = socketio.start_background_task(target=background_thread)
-    emit('start_game', {'data': new_player(), 'count': 0})
+    player = new_player()
+    redis.set(player['uid']: player)
+    emit('start_game', {'data': player, 'count': 0})
 
 
 @socketio.on('disconnect', namespace='/test')
