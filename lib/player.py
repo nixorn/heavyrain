@@ -7,7 +7,7 @@
 import uuid
 from .figure import new_figure
 from .hole import new_hole
-from .redis import redis_players
+from .redis_stuff import redis_players
 
 
 def new_player():

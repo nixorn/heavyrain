@@ -3,7 +3,6 @@ import uuid
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
-from lib.redis_stuff import redis_conn
 from lib.player import new_player
 
 

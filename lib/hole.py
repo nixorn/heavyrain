@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import uuid
 import random
-from .redis_stuff import redis_conn
+from .redis_stuff import redis_holes
 
 
 def new_hole(vertex=None):
