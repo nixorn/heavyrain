@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-import redis
 import uuid
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
+from lib.redis_stuff import redis_conn
 from lib.player import new_player
 
 
@@ -16,7 +16,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
-redis_conn = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 
 def background_thread():
@@ -50,9 +49,7 @@ def ping_pong():
 
 @socketio.on('connect', namespace='/game')
 def connect():
-    global redis_conn
     player = new_player()
-    redis_conn.set(player['uid'], player)
     emit('start_game', {'data': player})
 
 
