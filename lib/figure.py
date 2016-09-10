@@ -6,10 +6,13 @@ import random
 from .redis_stuff import redis_figures
 
 
-def new_figure():
+STATES = {'free', 'passing'}
+
+def new_figure(vertex=None):
     figure = {'uid': uuid.uuid1().hex,
-              'vertex': random.randint(1, 7),
-              'state': ''}
+              'vertex': vertex if isinstance(vertex, int)\
+                               else random.randint(1, 7),
+              'state': 'free'}
     redis_figures.set(figure['uid'], figure)
     return figure
 

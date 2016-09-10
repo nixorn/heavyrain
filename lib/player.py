@@ -10,15 +10,16 @@ from .hole import new_hole
 from .redis_stuff import redis_players
 
 
-def new_player():
+def new_player(name=None, figures=None):
     player = {}
     player['uid'] = uuid.uuid1().hex
-    player['figures'] = [new_figure() for i in range(5)]
+    if figures:
+        player['figures'] = figures
+    if name:
+        player['name'] = name
     player['scores'] = 0
     redis_players.set(player['uid'], player)
     return player
-
-def 
 
 
 def move_figure(player_from, player_to, figure):
@@ -27,6 +28,7 @@ def move_figure(player_from, player_to, figure):
 
 def break_moving(figure):
     pass
+
 
 def destroy_player(uid):
     pass

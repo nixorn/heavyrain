@@ -3,6 +3,8 @@ import uuid
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
+from lib.figure import new_figure
+from lib.hole import new_hole
 from lib.player import new_player
 from lib.wall import get_free_wall
 
@@ -18,17 +20,6 @@ socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 
 
-def background_thread():
-    """Example of how to send server generated events to clients."""
-    count = 0
-    while True:
-        socketio.sleep(10)
-        count += 1
-        socketio.emit('my response',
-                      {'data': 'Server generated event', 'count': count},
-                      namespace='/test')
-
-
 @app.route('/')
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
@@ -42,17 +33,17 @@ def disconnect_request():
     disconnect()
 
 
-@socketio.on('my ping', namespace='/game')
-def ping_pong():
-    emit('my pong')
-
-
 @socketio.on('connect', namespace='/game')
 def connect():
-    player = new_player()
-    wall = get_free_wall()
+    figures = [new_figure() for i in range(5)]
+    player = new_player(figures=[f['uid'] for f in figures])
+    holes = [new_hole(vertex=i) for i in range(7)]
+    wall = get_free_wall(holes=[h['uid'] for h in holes],
+                         player=player)
     emit('start_game', {'data': {'player': player,
-                                 'wall': get_free_wall})
+                                 'wall': wall,
+                                 'holes': holes,
+                                 'figures': figures,}})
 
 
 
