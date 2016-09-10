@@ -10,5 +10,6 @@ def new_figure():
     figure = {'uid': uuid.uuid1().hex,
               'vertex': random.randint(1, 7),
               'state': ''}
-    return figure['uid']
+    redis_figures.set(figure['uid'], figure)
+    return figure
 

@@ -7,4 +7,4 @@ from .redis_stuff import redis_holes
 def new_hole(vertex=None):
     hole = {'uid': uuid.uuid1().hex,
             'vertex': vertex if vertex else random.randint(1, 7)}
-    return hole['uid']
+    return hole

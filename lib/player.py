@@ -18,6 +18,8 @@ def new_player():
     redis_players.set(player['uid'], player)
     return player
 
+def 
+
 
 def move_figure(player_from, player_to, figure):
     pass

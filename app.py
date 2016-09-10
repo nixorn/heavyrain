@@ -4,6 +4,7 @@ from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
 from lib.player import new_player
+from lib.wall import get_free_wall
 
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
@@ -49,7 +50,9 @@ def ping_pong():
 @socketio.on('connect', namespace='/game')
 def connect():
     player = new_player()
-    emit('start_game', {'data': player})
+    wall = get_free_wall()
+    emit('start_game', {'data': {'player': player,
+                                 'wall': get_free_wall})
 
 
 

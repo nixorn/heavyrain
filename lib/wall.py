@@ -20,4 +20,5 @@ def is_both_players(wall_uid):
 def get_free_wall():
     """Получить первую свободную стену.
     Если свободных нет - создать новую и вернуть."""
-    pass
+    wall = {}
+    return wall
