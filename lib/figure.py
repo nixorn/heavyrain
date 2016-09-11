@@ -3,7 +3,7 @@
 Состояние может быть """
 import uuid
 import random
-from .redis_stuff import redis_figures
+from .redis_stuff import redis_figures, set_redis_value, get_redis_value
 
 
 STATES = {'free', 'passing'}
@@ -13,6 +13,6 @@ def new_figure(vertex=None):
               'vertex': vertex if isinstance(vertex, int)\
                                else random.randint(1, 7),
               'state': 'free'}
-    redis_figures.set(figure['uid'], figure)
+    set_redis_value(figure['uid'], figure, redis_figures)
     return figure
 

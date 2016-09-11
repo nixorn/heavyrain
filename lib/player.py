@@ -7,7 +7,7 @@
 import uuid
 from .figure import new_figure
 from .hole import new_hole
-from .redis_stuff import redis_players
+from .redis_stuff import redis_players, set_redis_value, get_redis_value
 
 
 def new_player(name=None, figures=None):
@@ -18,7 +18,7 @@ def new_player(name=None, figures=None):
     if name:
         player['name'] = name
     player['scores'] = 0
-    redis_players.set(player['uid'], player)
+    set_redis_value(player['uid'], player, redis_players)
     return player
 
 

@@ -46,8 +46,6 @@ def connect():
                                  'figures': figures,}})
 
 
-
-
 @socketio.on('disconnect', namespace='/game')
 def disconnect():
     print('Client disconnected', request.sid)

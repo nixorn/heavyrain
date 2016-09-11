@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import uuid
 from .hole import new_hole
-from .redis_stuff import redis_walls
+from .redis_stuff import redis_walls, set_redis_value, get_redis_value
 import json
 
 
@@ -22,7 +22,7 @@ def new_wall(holes=[], player='', players=[]):
     wall = {'uid': uuid.uuid1().hex,
             'players': players,
             'holes': holes}
-    redis_walls.set(wall['uid'], wall)
+    set_redis_value(wall['uid'], wall, redis_walls)
     return wall
 
 
@@ -37,12 +37,10 @@ def get_free_wall(player={}, holes=[]):
     Если свободных нет - создать новую и вернуть."""
     keys = redis_walls.keys()
     for key in keys:
-        wall = redis_walls.get(key).decode('utf-8')
-        print('decoded wall', wall)
-        print('unjsoned wall', json.load(wall))
+        wall = get_redis_value(key, redis_walls)
         if wall.get('players') and len(wall['players']) <= 1:
-            wall['players'].append(player.uid)
-            redis_walls.set(wall['uid'], wall)
+            wall['players'].append(player['uid'])
+            set_redis_value(wall['uid'], wall, redis_walls)
             return wall
     return new_wall(player=player['uid'], holes=holes)
 
