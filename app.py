@@ -45,11 +45,11 @@ def increment():
 
 @socketio.on('decrement', namespace='/game')
 def decrement():
-        try:
-        increment(request.uid)
-        emit('increment', {'data': 'OK'})
+    try:
+        decrement(request.uid)
+        emit('decrement', {'data': 'OK'})
     except Exception as e:
-        emit('increment', {'data': 'FAIL',
+        emit('decrement', {'data': 'FAIL',
                            'error': e.message})
 
 
