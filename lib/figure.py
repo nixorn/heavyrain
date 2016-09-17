@@ -8,6 +8,7 @@ from .redis_stuff import redis_figures, set_redis_value, get_redis_value
 
 STATES = {'free', 'passing'}
 
+
 def new_figure(vertex=None):
     figure = {'uid': uuid.uuid1().hex,
               'vertex': vertex if isinstance(vertex, int)\
@@ -16,3 +17,16 @@ def new_figure(vertex=None):
     set_redis_value(figure['uid'], figure, redis_figures)
     return figure
 
+
+def increment(fig_uid):
+    figure = get_redis_value(fig_uid, redis_figures)
+    figure['vertex'] += 1
+    set_redis_value(fig_uid, figure, redis_figures)
+    return geometry
+
+
+def decrement(fig_uid):
+    figure = get_redis_value(fig_uid, redis_figures)
+    figure['vertex'] -= 1
+    set_redis_value(fig_uid, figure, redis_figures)
+    return geometry

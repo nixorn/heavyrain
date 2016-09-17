@@ -3,7 +3,7 @@ import uuid
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
-from lib.figure import new_figure
+from lib.figure import new_figure, increment, decrement
 from lib.hole import new_hole
 from lib.player import new_player
 from lib.wall import get_free_wall
@@ -33,6 +33,26 @@ def disconnect_request():
     disconnect()
 
 
+@socketio.on('increm', namespace='/game')
+def increment():
+    try:
+        increment(request.uid)
+        emit('increment', {'data': 'OK'})
+    except Exception as e:
+        emit('increment', {'data': 'FAIL',
+                           'error': e.message})
+
+
+@socketio.on('decrement', namespace='/game')
+def decrement():
+        try:
+        increment(request.uid)
+        emit('increment', {'data': 'OK'})
+    except Exception as e:
+        emit('increment', {'data': 'FAIL',
+                           'error': e.message})
+
+
 @socketio.on('connect', namespace='/game')
 def connect():
     figures = [new_figure() for i in range(5)]
@@ -44,6 +64,11 @@ def connect():
                                  'wall': wall,
                                  'holes': holes,
                                  'figures': figures,}})
+
+
+@socketio.on_error_default  # handles all namespaces without an explicit error handler
+def default_error_handler(e):
+    print('EXCEPTION', e.with_traceback(None))
 
 
 @socketio.on('disconnect', namespace='/game')
