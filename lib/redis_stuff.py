@@ -21,8 +21,4 @@ def set_redis_value(key, value, connection):
 
 
 def get_redis_value(key, connection):
-    try:
-        return json.loads(connection.get(key).decode('utf8'))
-    except Exception as e:
-        print(e)
-        return connection.get(key)
+    return json.loads(connection.get(key).decode('utf8'))

@@ -10,9 +10,9 @@ from .hole import new_hole
 from .redis_stuff import redis_players, set_redis_value, get_redis_value
 
 
-def new_player(name=None, figures=None):
+def new_player(name=None, figures=None, uid=None):
     player = {}
-    player['uid'] = uuid.uuid1().hex
+    player['uid'] = uid if uid else uuid.uuid1().hex
     if figures:
         player['figures'] = figures
     if name:
