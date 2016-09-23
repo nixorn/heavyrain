@@ -5,9 +5,12 @@
 Плеер связан со стеной, которая связывает его игровое пространство с 
 пространством каким-то другим."""
 import uuid
-from .figure import new_figure
+from .figure import new_figure, delete_figure
 from .hole import new_hole
-from .redis_stuff import redis_players, set_redis_value, get_redis_value
+from .redis_stuff import (redis_players,
+                          redis_walls,
+                          set_redis_value,
+                          get_redis_value)
 
 
 def new_player(name=None, figures=None, uid=None):
@@ -22,6 +25,18 @@ def new_player(name=None, figures=None, uid=None):
     return player
 
 
+def destroy_player(uid):
+    player = get_redis_value(uid, redis_players)
+    for fig in player['figures']:
+        delete_figure(fig)
+    for wall_key in redis_walls.keys():
+        wall = get_redis_value(wall_key, redis_walls)
+        if uid in wall['players']:
+            wall['players'].remove(uid)
+            set_redis_value(wall['uid'], wall, redis_walls)
+    redis_players.delete('uid')
+
+
 def move_figure(player_from, player_to, figure):
     pass
 
@@ -31,4 +46,4 @@ def break_moving(figure):
 
 
 def destroy_player(uid):
-    pass
+    redis_players.delete(uid)

@@ -30,3 +30,7 @@ def decrement(fig_uid):
     figure['vertex'] -= 1
     set_redis_value(fig_uid, figure, redis_figures)
     return geometry
+
+
+def delete_figure(uid):
+    redis_figures.delete(uid)
