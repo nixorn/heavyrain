@@ -34,3 +34,4 @@ def decrement(fig_uid):
 
 def delete_figure(uid):
     redis_figures.delete(uid)
+    print('DELETED FIGURE', uid)

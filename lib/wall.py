@@ -16,9 +16,9 @@ def new_wall(holes=[], player='', players=[]):
          player:
         players.append(player)
 
-    if not holes:
-        holes = [new_hole() for i in range(6)]
-        holes = [h['uid'] for h in holes]
+
+    holes = [new_hole() for i in range(6)]
+    holes = [h['uid'] for h in holes]
     wall = {'uid': uuid.uuid1().hex,
             'players': players,
             'holes': holes}
@@ -32,15 +32,14 @@ def is_both_players(wall_uid):
     pass
 
 
-def get_free_wall(player={}, holes=[]):
+def get_free_wall(player):
     """Получить первую свободную стену.
     Если свободных нет - создать новую и вернуть."""
-    keys = redis_walls.keys()
-    for key in keys:
+    for key in redis_walls.keys():
         wall = get_redis_value(key, redis_walls)
-        if wall.get('players') and len(wall['players']) <= 1:
+        if len(wall['players']) <= 1:
             wall['players'].append(player['uid'])
             set_redis_value(wall['uid'], wall, redis_walls)
             return wall
-    return new_wall(player=player['uid'], holes=holes)
+    return new_wall(player=player['uid'])
 

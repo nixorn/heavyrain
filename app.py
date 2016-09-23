@@ -20,7 +20,8 @@ from lib.player import (new_player,
 from lib.wall import get_free_wall
 from lib.redis_stuff import (get_redis_value,
                              redis_players,
-                             redis_figures)
+                             redis_figures,
+                             redis_holes)
 
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
@@ -71,8 +72,10 @@ def connect():
 
 @socketio.on('disconnect', namespace='/game')
 def disconnect():
-    print('DISCONNECTED', request.sid)
+    #from lib.player import destroy_player
+    print('DISCONNECTING', request.sid)
     destroy_player(request.sid)
+    print('DISCONNECTED', request.sid)
     
 
 @socketio.on('start', namespace='/game')    
@@ -81,9 +84,8 @@ def start():
                              connection=redis_players)
     figures = [get_redis_value(key=fig,
                                connection=redis_figures) for fig in player['figures']]
-    holes = [new_hole(vertex=i) for i in range(7)]
-    wall = get_free_wall(holes=[h['uid'] for h in holes],
-                         player=player)
+    wall = get_free_wall(player=player)
+    holes = [get_redis_value(huid, redis_holes) for huid in wall['holes']]
     emit('start_game', {'data': {'player': player,
                                  'wall': wall,
                                  'holes': holes,

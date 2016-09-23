@@ -34,7 +34,8 @@ def destroy_player(uid):
         if uid in wall['players']:
             wall['players'].remove(uid)
             set_redis_value(wall['uid'], wall, redis_walls)
-    redis_players.delete('uid')
+    redis_players.delete(uid)
+    print('DELETED PLAYER', uid)
 
 
 def move_figure(player_from, player_to, figure):
@@ -45,5 +46,3 @@ def break_moving(figure):
     pass
 
 
-def destroy_player(uid):
-    redis_players.delete(uid)
