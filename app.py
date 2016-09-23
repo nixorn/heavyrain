@@ -55,6 +55,11 @@ def decrement():
 
 @socketio.on('connect', namespace='/game')
 def connect():
+    emit('connect', {'data': 'OK'})
+
+
+@socketio.on('start', namespace='/game')    
+def start():
     figures = [new_figure() for i in range(5)]
     player = new_player(figures=[f['uid'] for f in figures])
     holes = [new_hole(vertex=i) for i in range(7)]
@@ -64,6 +69,7 @@ def connect():
                                  'wall': wall,
                                  'holes': holes,
                                  'figures': figures,}})
+
 
 
 @socketio.on_error_default  # handles all namespaces without an explicit error handler
