@@ -180,6 +180,14 @@ def put(data):
     else:
         return 'fail'
 
+@socketio.on('give_me_figure', namespace='/game')
+def give_me_figure():
+    player = get_redis_value(request.sid, redis_players)
+    fig = new_figure()
+    player['figures'].append(fig['uid'])
+    set_redis_value(request.sid, player, redis_players)
+    return figure
+
 
 @socketio.on('hit', namespace='/game')
 def hit(hole_uid):
