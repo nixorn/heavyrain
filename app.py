@@ -87,11 +87,11 @@ def connect():
 def disconnect():
     print('DISCONNECTING', request.sid)
     destroy_player(request.sid)
-    spamer = FIGURE_SPAMERS.get(request.sid)
-    if spamer:
-        spamer.stop()
-        del spamer
-        del FIGURE_SPAMERS[request.sid]
+    opponent = get_opponent(request.sid)
+    if opponent:
+        emit('opponent_left',
+             {},
+             room=opponent['uid'])
     print('DISCONNECTED', request.sid)
 
 
@@ -110,7 +110,7 @@ def start():
                                  'opponent': opponent}})
     if opponent:
         emit('opponent_update',
-             {'data':{'opponent': opponent}},
+             {'data':{'opponent': player}},
              room=opponent['uid'])
 
 
@@ -119,6 +119,13 @@ def set_name(data):
     name = data.get('name')
     player = get_player(request.sid)
     player['name'] = name
+    set_redis_value(player['uid'], player, redis_players)
+    opponent = get_opponent(player['uid'])
+    if opponent:
+        emit('opponent_update',
+             {'data':{'opponent': player}},
+             room=opponent['uid'])
+
 
 
 @socketio.on('put', namespace='/game')
