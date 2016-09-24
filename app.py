@@ -190,4 +190,6 @@ def default_error_handler(e):
 
 
 if __name__ == '__main__':
+    from .redis_stuff import flush_all
+    flush_all()
     socketio.run(app, debug=True, port=4093)
