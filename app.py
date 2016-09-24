@@ -63,7 +63,8 @@ def increment():
 
 
 @socketio.on('decrement', namespace='/game')
-def decrement():
+def decrement(data):
+    figure_uid = data.get('figure_uid')
     try:
         decrement(request.uid)
         emit('decrement', {'data': 'OK'})
@@ -180,10 +181,12 @@ def put(data):
     else:
         return 'fail'
 
+
 @socketio.on('give_me_figure', namespace='/game')
-def give_me_figure():
+def give_me_figure(data):
+    vertex = data.get('vertex')
     player = get_redis_value(request.sid, redis_players)
-    fig = new_figure()
+    fig = new_figure(vertex)
     player['figures'].append(fig['uid'])
     set_redis_value(request.sid, player, redis_players)
     return figure
@@ -192,6 +195,15 @@ def give_me_figure():
 @socketio.on('hit', namespace='/game')
 def hit(hole_uid):
     break_put(hole_uid)
+    hitman = get_redis_value(request.sid, redis_players)
+    players = get_wall_by_hole(hole_uid)['players']
+    players = players.remove(hitman['uid'])
+    if players:
+        other_side_player_uid = players.pop()
+        emit('hit', {'data':{
+            'hole': hole_uid}},
+             room=other_side_player_uid)
+
 
 
 @socketio.on_error_default
