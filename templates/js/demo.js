@@ -163,11 +163,11 @@ $(document).ready(function(){
   socket.on("disconnect", function(){
     console.log("disconnected");
   });
-  socket.on("put_success", function(message){
-    console.log("success:", message.data);
+  socket.on("put_success", function(){
+    console.log("success");
   });
-  socket.on("put_failed", function(message){
-    console.log("failed:", message.data);
+  socket.on("put_failed", function(){
+    console.log("failed");
   });
   //
   socket.on('start_game', function(data) {
