@@ -67,6 +67,5 @@ def get_opponent(player_uid):
     if len(wall['players']) == 1:
         return None
     else:
-        players = filter(lambda x: x!=player_uid,
-                         wall['players'])
+        players = [p for p in wall['players'] if p != player_uid]
         return get_player(players[0])
