@@ -147,6 +147,9 @@ def put(data):
                player_to['uid'],
                player_from['uid'])
     emit('put_started')
+    emit('figure_is_coming',
+         {'data':{'hole_uid':hole['uid']}},
+         room=player_to['uid'])
     time.sleep(FIGURE_PASSING_TIME)
     if check_put_success(hole['uid']):
         print('GOING TO SEND PUT SUCESS')
