@@ -1,6 +1,6 @@
 import time
 import threading
-from flas.SocketIO import emit
+from flask_socketio import emit
 from .figure import new_figure
 from .player import add_figure
 from .redis_stuff import redis_players
@@ -11,7 +11,7 @@ class _GenThread(threading.Thread):
         super().__init__(*args, **kwargs)
         self._stopped = threading.Event()
 
-    def run():
+    def run(self):
         player_id = self.kwargs.get('player_id', None)
         interval = self.kwargs.get('interval', 2)
         if not player_id:
@@ -22,7 +22,7 @@ class _GenThread(threading.Thread):
             emit('new_figure', {'data': new_fig}, room=player_id)
             time.sleep(interval)
 
-    def stop():
+    def stop(self):
         self._stopped.set()
 
 def generator(player_id, timeout=2):
