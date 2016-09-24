@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 import uuid
 from .hole import new_hole
-from .redis_stuff import redis_walls, set_redis_value, get_redis_value
+from .redis_stuff import (redis_walls,
+                          set_redis_value,
+                          get_redis_value)
+from .player import (remove_figure,
+                     add_figure)
 import json
 
 
@@ -43,3 +47,15 @@ def get_free_wall(player):
             return wall
     return new_wall(player=player['uid'])
 
+
+def move_figure(player_from_uid, player_to_uid, figure_uid):
+    remove_figure(player_from_uid, figure_uid)
+    add_figure(player_to_uid, figure_uid)
+
+
+def get_wall_by_hole(hole_uid):
+    for key in redis_walls.keys():
+        wall = get_redis_value(key, redis_walls)
+        if hole_uid in wall['holes']:
+            return wall
+        

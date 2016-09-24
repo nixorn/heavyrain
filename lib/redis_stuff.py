@@ -6,6 +6,10 @@ redis_players = redis.StrictRedis(host='localhost', port=6379, db=2)
 redis_walls = redis.StrictRedis(host='localhost', port=6379, db=3)
 
 
+STATE_BUSY = 'busy'
+STATE_FREE = 'free'
+
+
 def flush_all():
     for db in [redis_figures,
                redis_holes,

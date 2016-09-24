@@ -38,11 +38,13 @@ def destroy_player(uid):
     print('DELETED PLAYER', uid)
 
 
-def move_figure(player_from, player_to, figure):
-    pass
+def remove_figure(player_uid, figure_uid):
+    player = get_redis_value(player_uid, redis_players)
+    player['figures'].remove(figure_uid)
+    set_redis_value(player_uid, player, redis_players)
 
 
-def break_moving(figure):
-    pass
-
-
+def add_figure(player_uid, figure_uid):
+    player = get_redis_value(player_uid, redis_players)
+    player['figures'].append(figure_uid)
+    set_redis_value(player_uid, player, redis_players)

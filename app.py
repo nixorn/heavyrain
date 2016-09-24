@@ -17,11 +17,14 @@ from lib.figure import (new_figure,
 from lib.hole import new_hole
 from lib.player import (new_player,
                         destroy_player)
-from lib.wall import get_free_wall
+from lib.wall import (get_free_wall,
+                      move_figure,
+                      get_wall_by_hole)
 from lib.redis_stuff import (get_redis_value,
                              redis_players,
                              redis_figures,
                              redis_holes)
+import time
 
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
@@ -35,6 +38,7 @@ app.debug = True
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 
+FIGURE_PASSING_TIME = 1
 
 @app.route('/')
 def index():
@@ -90,6 +94,63 @@ def start():
                                  'wall': wall,
                                  'holes': holes,
                                  'figures': figures,}})
+
+
+@socketio.on('put', namespace='/game')    
+def put(figure_uid, hole_uid):
+    # get figure
+    figure = get_redis_value(figure_uid, redis_figures)
+    hole = get_redis_value(hole_uid, redis_holes)
+    #get wall
+    wall = get_wall_by_hole(hole_id)
+    # get both players
+    if len(wall['players']) <= 1:
+        emit('put_failed', {
+            'data': 'wall have less then one player'
+        })
+        return
+    elif len(wall['players']) >= 3:
+        emit('put_failed', {
+            'data': 'more than 2 players. wtf?'
+        })
+        return
+    players = [get_redis_value(p_uid, redis_players) for p_uid in wall['players']]
+    player_from = [p for p in players if figure_uid in p['figures']]
+    if player_from:
+        player_from = player_from[0]
+    else:
+        emit('put_failed', {
+            'data': 'can not get player who putting'
+        })
+        return
+
+    player_to = [p for p in players if figure_uid not in p['figures']]
+    if player_to:
+        player_to = player_to[0]
+    else:
+        emit('put_failed', {
+            'data': 'can not get player who recieve figure'
+        })
+        return
+    put_figure(hole['uid'],
+               figure['uid'],
+               player_to['uid'],
+               player_from['uid'])
+    emit('put_started')
+    time.sleep(FIGURE_PASSING_TIME)
+    if check_put_success(hole['uid']):
+        emit('put_success')
+        emit('remove_figure', figure['uid'])
+        emit('new_figure',
+             {'data': {'figure': figure}},
+             room=player_to.uid)
+    else:
+        emit('put_fail')
+
+
+@socketio.on('hit', namespace='/game')    
+def hit(hole_uid):
+    break_put(hole_uid)
 
 
 @socketio.on_error_default
