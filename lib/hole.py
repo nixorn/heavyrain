@@ -40,6 +40,10 @@ def break_put(hole_uid):
 def check_put_success(hole_uid):
     hole = get_redis_value(hole_uid, redis_holes)
     if hole['state'] == STATE_BUSY:
+        hole['state'] = STATE_FREE
+        hole['player_to'] = ''
+        hole['player_from'] = ''
+        set_redis_value(hole_uid, hole, redis_holes)
         return True
     else:
         return False
