@@ -24,6 +24,7 @@ from lib.wall import (get_free_wall,
                       move_figure,
                       get_wall_by_hole)
 from lib.redis_stuff import (get_redis_value,
+                             set_redis_value,
                              redis_players,
                              redis_figures,
                              redis_holes)
@@ -43,6 +44,7 @@ socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 
 FIGURE_PASSING_TIME = 1
+FIGURE_SPAWN_TIMEOUT = 3
 FIGURE_SPAMERS = {}
 
 @app.route('/')
@@ -108,6 +110,14 @@ def start():
                                  'wall': wall,
                                  'holes': holes,
                                  'figures': figures,}})
+    #while 1:
+    #    fig = new_figure()
+    #    player['figures'].append(fig['uid'])
+    #    set_redis_value(player['uid'], player, redis_players)
+    #    emit('new_figure',
+    #         {'data': {'figure': fig}})
+    #    time.sleep(FIGURE_SPAWN_TIMEOUT)
+        
 
 
 @socketio.on('put', namespace='/game')
@@ -117,10 +127,12 @@ def put(data):
     if not figure_uid:
         emit('put_failed',
              {'data': 'give the figure_uid'})
+        return
     hole_uid = data.get('hole_uid')
     if not hole_uid:
         emit('put_failed',
              {'data': 'give the hole_uid'})
+        return
 
     figure = get_redis_value(figure_uid, redis_figures)
     hole = get_redis_value(hole_uid, redis_holes)
