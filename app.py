@@ -17,7 +17,7 @@ from lib.figure import (new_figure,
 from lib.hole import (new_hole,
                       put_figure,
                       break_put,
-                      check_put_success)
+                      ensure_put_success)
 from lib.player import (new_player,
                         destroy_player)
 from lib.wall import (get_free_wall,
@@ -126,7 +126,7 @@ def put(data):
     wall = get_wall_by_hole(hole_uid)
     if len(wall['players']) <= 1:
         emit('put_failed', {
-            'data': 'wall have less then one player'
+             'data': 'wall have less then one player'
         })
         return
     elif len(wall['players']) >= 3:
@@ -135,6 +135,7 @@ def put(data):
         })
         return
     players = [get_redis_value(p_uid, redis_players) for p_uid in wall['players']]
+    print ('PLAYERS', players)
     player_from = [p for p in players if figure_uid in p['figures']]
     if player_from:
         player_from = player_from[0]
@@ -152,6 +153,8 @@ def put(data):
             'data': 'can not get player who recieve figure'
         })
         return
+    print('player_from', player_from)
+    print('player_to', player_to)
     put_figure(hole['uid'],
                figure['uid'],
                player_to['uid'],
@@ -161,7 +164,10 @@ def put(data):
          {'data':{'hole_uid':hole['uid']}},
          room=player_to['uid'])
     time.sleep(FIGURE_PASSING_TIME)
-    if check_put_success(hole['uid']):
+    if ensure_put_success(hole['uid'],
+                          figure['uid'],
+                          player_from['uid'],
+                          player_to['uid']):
         print('GOING TO SEND PUT SUCESS')
         emit('put_success')
         emit('remove_figure', figure['uid'])

@@ -5,6 +5,8 @@ from .redis_stuff import (redis_holes,
                           redis_figures,
                           set_redis_value,
                           get_redis_value)
+from .player import (add_figure,
+                     remove_figure)
 
 STATE_BUSY = 'busy'
 STATE_FREE = 'free'
@@ -28,7 +30,6 @@ def put_figure(hole_uid, figure_uid, player_to_uid, player_from_uid):
     hole['figure'] = figure_uid
     hole['player_to'] = player_to_uid
     hole['player_from'] = player_from_uid
-    print(hole)
     set_redis_value(hole_uid, hole, redis_holes)
 
 
@@ -40,7 +41,7 @@ def break_put(hole_uid):
     set_redis_value(hole_uid, hole, redis_figures)
 
     
-def check_put_success(hole_uid):
+def ensure_put_success(hole_uid, figure_uid, player_from, player_to):
     hole = get_redis_value(hole_uid, redis_holes)
     print('CHECKING HOLE STATE', hole)
     if hole['state'] == STATE_BUSY:
@@ -48,6 +49,8 @@ def check_put_success(hole_uid):
         hole['player_to'] = ''
         hole['player_from'] = ''
         set_redis_value(hole_uid, hole, redis_holes)
+        remove_figure(player_from, figure_uid)
+        add_figure(player_to, figure_uid)
         return True
     else:
         return False

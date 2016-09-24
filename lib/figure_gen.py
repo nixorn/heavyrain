@@ -14,13 +14,13 @@ class _GenThread(threading.Thread):
         print('TRYING TO RUN SPAMER')
         player_id = self._kwargs.get('player_id', None)
         interval = self._kwargs.get('interval', 2)
-        socket = self._kwargs.get('socket', 2)
+        socket = self._kwargs.get('socket', None)
         if not player_id:
             self._stopped.set()
         while not self._stopped.is_set():
-            print('TRYING TO SPAM SPAM SPAM')
             new_fig = new_figure()
             add_figure(player_id, new_fig['uid'])
+            print(player_id, new_fig)
             socket.emit('new_figure', {'data': new_fig}, room=player_id)
             time.sleep(interval)
 
