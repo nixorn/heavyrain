@@ -27,6 +27,8 @@ def new_player(name=None, figures=None, uid=None):
 
 def destroy_player(uid):
     player = get_redis_value(uid, redis_players)
+    if not player:
+        return
     for fig in player['figures']:
         delete_figure(fig)
     for wall_key in redis_walls.keys():

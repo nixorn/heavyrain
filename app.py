@@ -101,6 +101,7 @@ def start():
 
 @socketio.on('put', namespace='/game')
 def put(data):
+    print('PUT REQUEST', data)
     figure_uid = data.get('figure_uid')
     if not figure_uid:
         emit('put_failed',
@@ -148,11 +149,12 @@ def put(data):
     emit('put_started')
     time.sleep(FIGURE_PASSING_TIME)
     if check_put_success(hole['uid']):
+        print('GOING TO SEND PUT SUCESS')
         emit('put_success')
         emit('remove_figure', figure['uid'])
         emit('new_figure',
              {'data': {'figure': figure}},
-             room=player_to.uid)
+             room=player_to['uid'])
     else:
         emit('put_fail')
 

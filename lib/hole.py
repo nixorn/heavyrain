@@ -22,12 +22,14 @@ def new_hole(vertex=None):
 
 
 def put_figure(hole_uid, figure_uid, player_to_uid, player_from_uid):
+    print('TRYING TO BUSY HOLE')
     hole = get_redis_value(hole_uid, redis_holes)
     hole['state'] = STATE_BUSY
     hole['figure'] = figure_uid
     hole['player_to'] = player_to_uid
     hole['player_from'] = player_from_uid
-    set_redis_value(hole_uid, hole, redis_figures)
+    print(hole)
+    set_redis_value(hole_uid, hole, redis_holes)
 
 
 def break_put(hole_uid):
@@ -40,6 +42,7 @@ def break_put(hole_uid):
     
 def check_put_success(hole_uid):
     hole = get_redis_value(hole_uid, redis_holes)
+    print('CHECKING HOLE STATE', hole)
     if hole['state'] == STATE_BUSY:
         hole['state'] = STATE_FREE
         hole['player_to'] = ''
