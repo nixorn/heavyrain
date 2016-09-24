@@ -32,7 +32,7 @@ import time
 # the best option based on installed packages.
 async_mode = "eventlet"
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='templates', static_path="")
 app.config['SECRET_KEY'] = 'secret!'
 app.debug = True
 socketio = SocketIO(app, async_mode=async_mode)
@@ -80,9 +80,9 @@ def disconnect():
     print('DISCONNECTING', request.sid)
     destroy_player(request.sid)
     print('DISCONNECTED', request.sid)
-    
 
-@socketio.on('start', namespace='/game')    
+
+@socketio.on('start', namespace='/game')
 def start():
     player = get_redis_value(key=request.sid,
                              connection=redis_players)
@@ -96,7 +96,7 @@ def start():
                                  'figures': figures,}})
 
 
-@socketio.on('put', namespace='/game')    
+@socketio.on('put', namespace='/game')
 def put(data):
     figure_uid = data.get('figure_uid')
     if not figure_uid:
@@ -106,7 +106,7 @@ def put(data):
     if not hole_uid:
         emit('put_failed',
              {'data': 'give the hole_uid'})
-    
+
     figure = get_redis_value(figure_uid, redis_figures)
     hole = get_redis_value(hole_uid, redis_holes)
     wall = get_wall_by_hole(hole_uid)
@@ -154,7 +154,7 @@ def put(data):
         emit('put_fail')
 
 
-@socketio.on('hit', namespace='/game')    
+@socketio.on('hit', namespace='/game')
 def hit(hole_uid):
     break_put(hole_uid)
 
