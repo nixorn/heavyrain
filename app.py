@@ -125,47 +125,36 @@ def put(data):
     print('PUT REQUEST', data)
     figure_uid = data.get('figure_uid')
     if not figure_uid:
-        emit('put_failed',
-             {'data': 'give the figure_uid'})
-        return
+        print('give the figure_uid')
+        return 'fail'
     hole_uid = data.get('hole_uid')
     if not hole_uid:
-        emit('put_failed',
-             {'data': 'give the hole_uid'})
-        return
-
+        print('give the hole_uid')
+        return 'fail'
     figure = get_redis_value(figure_uid, redis_figures)
     hole = get_redis_value(hole_uid, redis_holes)
     wall = get_wall_by_hole(hole_uid)
     if len(wall['players']) <= 1:
-        emit('put_failed', {
-             'data': 'wall have less then one player'
-        })
-        return
+        print('wall have less then one player')
+        return 'fail'
     elif len(wall['players']) >= 3:
-        emit('put_failed', {
-            'data': 'more than 2 players. wtf?'
-        })
-        return
+        print('more than 2 players')
+        return 'fail'
     players = [get_redis_value(p_uid, redis_players) for p_uid in wall['players']]
     print ('PLAYERS', players)
     player_from = [p for p in players if figure_uid in p['figures']]
     if player_from:
         player_from = player_from[0]
     else:
-        emit('put_failed', {
-            'data': 'can not get player who putting'
-        })
-        return
+        print('can not get player who putting')
+        return 'fail'
 
     player_to = [p for p in players if figure_uid not in p['figures']]
     if player_to:
         player_to = player_to[0]
     else:
-        emit('put_failed', {
-            'data': 'can not get player who recieve figure'
-        })
-        return
+        print('can not get player who recieve figure')
+        return 'fail'
     print('player_from', player_from)
     print('player_to', player_to)
     put_figure(hole['uid'],
@@ -181,14 +170,15 @@ def put(data):
                           figure['uid'],
                           player_from['uid'],
                           player_to['uid']):
-        print('GOING TO SEND PUT SUCESS')
-        emit('put_success')
+        
         emit('remove_figure', figure['uid'])
         emit('new_figure',
-             {'data': {'figure': figure}},
+             {'data': {'figure': figure,
+                       'hole_uid': hole_uid}},
              room=player_to['uid'])
+        return 'ok'
     else:
-        emit('put_fail')
+        return 'fail'
 
 
 @socketio.on('hit', namespace='/game')
