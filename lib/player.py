@@ -12,20 +12,22 @@ from .redis_stuff import (redis_players,
                           get_redis_value)
 
 
-def new_player(name=None, figures=None, uid=None):
+def get_player(player_uid):
+    return get_redis_value(player_uid, redis_players)
+
+
+def new_player(name='', figures=[], uid=None):
     player = {}
     player['uid'] = uid if uid else uuid.uuid1().hex
-    if figures:
-        player['figures'] = figures
-    if name:
-        player['name'] = name
+    player['figures'] = figures
+    player['name'] = name
     player['scores'] = 0
     set_redis_value(player['uid'], player, redis_players)
     return player
 
 
 def destroy_player(uid):
-    player = get_redis_value(uid, redis_players)
+    player = get_player(uid)
     if not player:
         return
     for fig in player['figures']:
@@ -53,3 +55,5 @@ def add_figure(player_uid, figure_uid):
     player = get_redis_value(player_uid, redis_players)
     player['figures'].append(figure_uid)
     set_redis_value(player_uid, player, redis_players)
+
+

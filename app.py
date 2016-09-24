@@ -19,10 +19,11 @@ from lib.hole import (new_hole,
                       break_put,
                       ensure_put_success)
 from lib.player import (new_player,
-                        destroy_player)
+                        destroy_player,
+                        get_player)
 from lib.wall import (get_free_wall,
-                      move_figure,
-                      get_wall_by_hole)
+                      get_wall_by_hole,
+                      get_opponent)
 from lib.redis_stuff import (get_redis_value,
                              set_redis_value,
                              redis_players,
@@ -63,7 +64,8 @@ def increment():
 
 
 @socketio.on('decrement', namespace='/game')
-def decrement():
+def decrement(data):
+    figure_uid = data.get('figure_uid')
     try:
         decrement(request.uid)
         emit('decrement', {'data': 'OK'})
@@ -78,45 +80,51 @@ def connect():
     figures = [new_figure() for i in range(5)]
     player = new_player(figures=[f['uid'] for f in figures],
                         uid=request.sid)
-
-    #spamer = generator(request.sid, request.namespace)
-    #spamer.start()
-    #FIGURE_SPAMERS[request.sid] = spamer
     emit('connect', {'data': 'OK'})
 
 
 @socketio.on('disconnect', namespace='/game')
 def disconnect():
-    #from lib.player import destroy_player
     print('DISCONNECTING', request.sid)
     destroy_player(request.sid)
-    spamer = FIGURE_SPAMERS.get(request.sid)
-    if spamer:
-        spamer.stop()
-        del spamer
-        del FIGURE_SPAMERS[request.sid]
+    opponent = get_opponent(request.sid)
+    if opponent:
+        emit('opponent_left',
+             {},
+             room=opponent['uid'])
     print('DISCONNECTED', request.sid)
 
 
 @socketio.on('start', namespace='/game')
 def start():
-    player = get_redis_value(key=request.sid,
-                             connection=redis_players)
+    player = get_player(request.sid)
     figures = [get_redis_value(key=fig,
                                connection=redis_figures) for fig in player['figures']]
     wall = get_free_wall(player=player)
+    opponent = get_opponent(request.sid)
     holes = [get_redis_value(huid, redis_holes) for huid in wall['holes']]
     emit('start_game', {'data': {'player': player,
                                  'wall': wall,
                                  'holes': holes,
-                                 'figures': figures,}})
-    #while 1:
-    #    fig = new_figure()
-    #    player['figures'].append(fig['uid'])
-    #    set_redis_value(player['uid'], player, redis_players)
-    #    emit('new_figure',
-    #         {'data': {'figure': fig}})
-    #    time.sleep(FIGURE_SPAWN_TIMEOUT)
+                                 'figures': figures,
+                                 'opponent': opponent}})
+    if opponent:
+        emit('opponent_update',
+             {'data':{'opponent': player}},
+             room=opponent['uid'])
+
+
+@socketio.on('set_name', namespace='/game')
+def set_name(data):
+    name = data.get('name')
+    player = get_player(request.sid)
+    player['name'] = name
+    set_redis_value(player['uid'], player, redis_players)
+    opponent = get_opponent(player['uid'])
+    if opponent:
+        emit('opponent_update',
+             {'data':{'opponent': player}},
+             room=opponent['uid'])
 
 
 
@@ -140,7 +148,7 @@ def put(data):
     elif len(wall['players']) >= 3:
         print('more than 2 players')
         return 'fail'
-    players = [get_redis_value(p_uid, redis_players) for p_uid in wall['players']]
+    players = [get_player(p_uid) for p_uid in wall['players']]
     print ('PLAYERS', players)
     player_from = [p for p in players if figure_uid in p['figures']]
     if player_from:
@@ -157,15 +165,16 @@ def put(data):
         return 'fail'
     print('player_from', player_from)
     print('player_to', player_to)
-    put_figure(hole['uid'],
-               figure['uid'],
-               player_to['uid'],
-               player_from['uid'])
     emit('put_started')
     emit('figure_is_coming',
          {'data':{'hole_uid':hole['uid']}},
          room=player_to['uid'])
-    time.sleep(FIGURE_PASSING_TIME)
+    put_figure(hole['uid'],
+               figure['uid'],
+               player_to['uid'],
+               player_from['uid'])
+
+    socketio.sleep(FIGURE_PASSING_TIME)
     if ensure_put_success(hole['uid'],
                           figure['uid'],
                           player_from['uid'],
@@ -180,10 +189,12 @@ def put(data):
     else:
         return 'fail'
 
+
 @socketio.on('give_me_figure', namespace='/game')
-def give_me_figure():
-    player = get_redis_value(request.sid, redis_players)
-    fig = new_figure()
+def give_me_figure(data):
+    vertex = data.get('vertex')
+    player = get_player(request.sid)
+    fig = new_figure(vertex)
     player['figures'].append(fig['uid'])
     set_redis_value(request.sid, player, redis_players)
     return figure
@@ -192,6 +203,15 @@ def give_me_figure():
 @socketio.on('hit', namespace='/game')
 def hit(hole_uid):
     break_put(hole_uid)
+    hitman = get_redis_value(request.sid, redis_players)
+    players = get_wall_by_hole(hole_uid)['players']
+    players = players.remove(hitman['uid'])
+    if players:
+        other_side_player_uid = players.pop()
+        emit('hit', {'data':{
+            'hole': hole_uid}},
+             room=other_side_player_uid)
+
 
 
 @socketio.on_error_default
