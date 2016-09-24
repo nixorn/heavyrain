@@ -1,6 +1,5 @@
 import redis
 import json
-from json import JSONDecodeError
 redis_figures = redis.StrictRedis(host='localhost', port=6379, db=0)
 redis_holes = redis.StrictRedis(host='localhost', port=6379, db=1)
 redis_players = redis.StrictRedis(host='localhost', port=6379, db=2)
@@ -9,10 +8,22 @@ redis_walls = redis.StrictRedis(host='localhost', port=6379, db=3)
 
 def flush_all():
     for db in [redis_figures,
-              redis_holes,
-              redis_players,
-              redis_walls]:
+               redis_holes,
+               redis_players,
+               redis_walls]:
         db.flushall()
+
+
+def get_all_data(store=None):
+    result = {}
+    for name, db in [('figures', redis_figures),
+                     ('holes', redis_holes),
+                     ('players', redis_players),
+                     ('walls', redis_walls),]:
+        result[name] = [get_redis_value(key_, db) for key_ in db.keys()]
+    if store:
+        return result[store]
+    return result
 
 
 def set_redis_value(key, value, connection):
@@ -36,13 +47,3 @@ def get_redis_value(key, connection):
         return None
 
 
-def get_all_data(store=None):
-    result = {}
-    for name, db in [('figures', redis_figures),
-                     ('holes', redis_holes),
-                     ('players', redis_players),
-                     ('walls', redis_walls)]:
-        result[name] = [get_redis_value(key_, db) for key_ in db.keys()]
-    if store:
-        return result[store]
-    return result
