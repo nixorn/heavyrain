@@ -6,7 +6,6 @@
 пространством каким-то другим."""
 import uuid
 from .figure import new_figure, delete_figure
-from .hole import new_hole
 from .redis_stuff import (redis_players,
                           redis_walls,
                           set_redis_value,
@@ -42,9 +41,12 @@ def destroy_player(uid):
 
 
 def remove_figure(player_uid, figure_uid):
+    print('removing figure', figure_uid,' from player', player_uid)
     player = get_redis_value(player_uid, redis_players)
+    print('player figures',  player['figures'])
     player['figures'].remove(figure_uid)
     set_redis_value(player_uid, player, redis_players)
+    print('player have this figure after removing', figure_uid in player['figures'])
 
 
 def add_figure(player_uid, figure_uid):

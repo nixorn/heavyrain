@@ -155,7 +155,8 @@ $(document).ready(function(){
 
   var namespace = '/game';
   console.log("CONNECT ATTEMPT");
-  socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+    socket = io.connect('http://' + document.domain + ':' + location.port + namespace,
+			{reconnection: false});
   var started = false;
   socket.on("connect", function(){
     if (!started) {
