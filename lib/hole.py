@@ -28,7 +28,6 @@ def put_figure(hole_uid, figure_uid, player_to_uid, player_from_uid):
     hole['figure'] = figure_uid
     hole['player_to'] = player_to_uid
     hole['player_from'] = player_from_uid
-    print(hole)
     set_redis_value(hole_uid, hole, redis_holes)
 
 

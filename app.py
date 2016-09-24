@@ -76,9 +76,9 @@ def connect():
     figures = [new_figure() for i in range(5)]
     player = new_player(figures=[f['uid'] for f in figures],
                         uid=request.sid)
-    spamer = generator(request.sid, socketio)
-    spamer.start()
-    FIGURE_SPAMERS[request.sid] = spamer
+    #spamer = generator(request.sid, socketio)
+    #spamer.start()
+    #FIGURE_SPAMERS[request.sid] = spamer
     emit('connect', {'data': 'OK'})
 
 
@@ -126,7 +126,7 @@ def put(data):
     wall = get_wall_by_hole(hole_uid)
     if len(wall['players']) <= 1:
         emit('put_failed', {
-            'data': 'wall have less then one player'
+             'data': 'wall have less then one player'
         })
         return
     elif len(wall['players']) >= 3:
@@ -152,6 +152,8 @@ def put(data):
             'data': 'can not get player who recieve figure'
         })
         return
+    print('player_from', player_from)
+    print('player_to', player_to)
     put_figure(hole['uid'],
                figure['uid'],
                player_to['uid'],
