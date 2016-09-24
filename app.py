@@ -97,13 +97,19 @@ def start():
 
 
 @socketio.on('put', namespace='/game')    
-def put(figure_uid, hole_uid):
-    # get figure
+def put(data):
+    figure_uid = data.get('figure_uid')
+    if not figure_uid:
+        emit('put_failed',
+             {'data': 'give the figure_uid'})
+    hole_uid = data.get('hole_uid')
+    if not hole_uid:
+        emit('put_failed',
+             {'data': 'give the hole_uid'})
+    
     figure = get_redis_value(figure_uid, redis_figures)
     hole = get_redis_value(hole_uid, redis_holes)
-    #get wall
     wall = get_wall_by_hole(hole_id)
-    # get both players
     if len(wall['players']) <= 1:
         emit('put_failed', {
             'data': 'wall have less then one player'
