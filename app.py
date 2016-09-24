@@ -76,7 +76,7 @@ def connect():
     figures = [new_figure() for i in range(5)]
     player = new_player(figures=[f['uid'] for f in figures],
                         uid=request.sid)
-    spamer = generator(request.sid, socketio)
+    spamer = generator(request.sid, request.namespace)
     spamer.start()
     FIGURE_SPAMERS[request.sid] = spamer
     emit('connect', {'data': 'OK'})
