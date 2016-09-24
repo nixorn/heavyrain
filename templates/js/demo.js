@@ -152,7 +152,8 @@ $(document).ready(function(){
 
   var namespace = '/game';
   console.log("CONNECT ATTEMPT");
-  socket = io.connect('http://rain.cancode.ru' + namespace);
+  // socket = io.connect('http://rain.cancode.ru' + namespace);
+  socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
   // socket = io.connect('http://127.0.0.1:4093' + namespace);
   var started = false;
   socket.on("connect", function(){
