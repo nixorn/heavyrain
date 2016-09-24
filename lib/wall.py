@@ -39,12 +39,15 @@ def is_both_players(wall_uid):
 def get_free_wall(player):
     """Получить первую свободную стену.
     Если свободных нет - создать новую и вернуть."""
+    print('trying to get free wall')
     for key in redis_walls.keys():
         wall = get_redis_value(key, redis_walls)
         if len(wall['players']) <= 1:
             wall['players'].append(player['uid'])
             set_redis_value(wall['uid'], wall, redis_walls)
+            print('got free wall', wall)
             return wall
+    print('there are no free walls!')
     return new_wall(player=player['uid'])
 
 

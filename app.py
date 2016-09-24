@@ -14,7 +14,10 @@ from flask_socketio import (SocketIO,
 from lib.figure import (new_figure,
                         increment,
                         decrement)
-from lib.hole import new_hole
+from lib.hole import (new_hole,
+                      put_figure,
+                      break_put,
+                      check_put_success)
 from lib.player import (new_player,
                         destroy_player)
 from lib.wall import (get_free_wall,

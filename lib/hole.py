@@ -2,6 +2,7 @@
 import uuid
 import random
 from .redis_stuff import (redis_holes,
+                          redis_figures,
                           set_redis_value,
                           get_redis_value)
 
@@ -47,4 +48,3 @@ def check_put_success(hole_uid):
         return True
     else:
         return False
-

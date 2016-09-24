@@ -31,6 +31,7 @@ def destroy_player(uid):
         delete_figure(fig)
     for wall_key in redis_walls.keys():
         wall = get_redis_value(wall_key, redis_walls)
+        print('TRYING TO DELETE PLAYERS', wall['players'], uid, uid in wall['players'])
         if uid in wall['players']:
             wall['players'].remove(uid)
             set_redis_value(wall['uid'], wall, redis_walls)
