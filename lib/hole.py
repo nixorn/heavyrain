@@ -28,6 +28,7 @@ def put_figure(hole_uid, figure_uid, player_to_uid, player_from_uid):
     hole['player_from'] = player_from_uid
     set_redis_value(hole_uid, hole, redis_figures)
 
+
 def break_put(hole_uid):
     hole = get_redis_value(hole_uid, redis_holes)
     hole['state'] = STATE_FREE
@@ -42,3 +43,4 @@ def check_put_success(hole_uid):
         return True
     else:
         return False
+

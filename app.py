@@ -109,7 +109,7 @@ def put(data):
     
     figure = get_redis_value(figure_uid, redis_figures)
     hole = get_redis_value(hole_uid, redis_holes)
-    wall = get_wall_by_hole(hole_id)
+    wall = get_wall_by_hole(hole_uid)
     if len(wall['players']) <= 1:
         emit('put_failed', {
             'data': 'wall have less then one player'
