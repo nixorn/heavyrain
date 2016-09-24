@@ -165,15 +165,16 @@ def put(data):
         return 'fail'
     print('player_from', player_from)
     print('player_to', player_to)
-    put_figure(hole['uid'],
-               figure['uid'],
-               player_to['uid'],
-               player_from['uid'])
     emit('put_started')
     emit('figure_is_coming',
          {'data':{'hole_uid':hole['uid']}},
          room=player_to['uid'])
-    time.sleep(FIGURE_PASSING_TIME)
+    put_figure(hole['uid'],
+               figure['uid'],
+               player_to['uid'],
+               player_from['uid'])
+
+    socketio.sleep(FIGURE_PASSING_TIME)
     if ensure_put_success(hole['uid'],
                           figure['uid'],
                           player_from['uid'],
