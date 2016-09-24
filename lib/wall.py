@@ -5,7 +5,8 @@ from .redis_stuff import (redis_walls,
                           set_redis_value,
                           get_redis_value)
 from .player import (remove_figure,
-                     add_figure)
+                     add_figure,
+                     get_player)
 import json
 
 
@@ -21,19 +22,13 @@ def new_wall(holes=[], player='', players=[]):
         players.append(player)
 
 
-    holes = [new_hole() for i in range(6)]
+    holes = [new_hole() for i in range(3)]
     holes = [h['uid'] for h in holes]
     wall = {'uid': uuid.uuid1().hex,
             'players': players,
             'holes': holes}
     set_redis_value(wall['uid'], wall, redis_walls)
     return wall
-
-
-def is_both_players(wall_uid):
-    """с обоих ли сторон стены есть по плееру.
-    """
-    pass
 
 
 def get_free_wall(player):
@@ -51,14 +46,27 @@ def get_free_wall(player):
     return new_wall(player=player['uid'])
 
 
-def move_figure(player_from_uid, player_to_uid, figure_uid):
-    remove_figure(player_from_uid, figure_uid)
-    add_figure(player_to_uid, figure_uid)
-
-
 def get_wall_by_hole(hole_uid):
-    for key in redis_walls.keys():
-        wall = get_redis_value(key, redis_walls)
+    for k in redis_walls.keys():
+        wall = get_redis_value(k, redis_walls)
         if hole_uid in wall['holes']:
             return wall
+
+
+def get_wall_by_player(player_uid):
+    for k in redis_walls.keys():
+        wall = get_redis_value(k, redis_walls)
+        if player_uid in wall['players']:
+            return wall
+
         
+def get_opponent(player_uid):
+    """Если есть чувак с другой стороны - отдает чувака полностью
+    если нет - None"""
+    wall = get_wall_by_player(player_uid)
+    if len(wall['players']) == 1:
+        return None
+    else:
+        players = filter(lambda x: x!=player_uid,
+                         wall['players'])
+        return get_player(players[0])
