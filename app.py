@@ -117,7 +117,7 @@ def start():
     #    emit('new_figure',
     #         {'data': {'figure': fig}})
     #    time.sleep(FIGURE_SPAWN_TIMEOUT)
-        
+
 
 
 @socketio.on('put', namespace='/game')
@@ -170,7 +170,7 @@ def put(data):
                           figure['uid'],
                           player_from['uid'],
                           player_to['uid']):
-        
+
         emit('remove_figure', figure['uid'])
         emit('new_figure',
              {'data': {'figure': figure,

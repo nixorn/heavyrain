@@ -62,7 +62,7 @@ function darken(color) {
   return components_out.reverse().join("")
 }
 
-function addFigure(angles, purpose, uid) {
+function addFigure(angles, purpose, uid, hole_uid, pending) {
   var color = pickRandom(colors);
   var body = Bodies.polygon(roundRand(100,700), roundRand(100,200), angles, 50);
   if (purpose) {
@@ -71,7 +71,9 @@ function addFigure(angles, purpose, uid) {
     if (purpose == "hole") {
       Body.set(body, "isStatic", true);
       Body.set(body, "isSensor", true);
+      Body.setAngle(body, roundRand(0, 3));
       holes.push(body);
+      holes_by_id[uid] = body;
     }
     if (purpose == "body") {
       bodies[uid] = body;
@@ -82,7 +84,21 @@ function addFigure(angles, purpose, uid) {
   if (uid) {
     Body.set(body, "uid", uid);
   }
-  World.add(engine.world, body);
+  if (uid == "small") {
+    Body.scale(body, 0.1, 0.1);
+    Body.setDensity(body, 0);
+    Body.set(body, "isSensor", true);
+  }
+  if (hole_uid) {
+    if (pending) {
+      pendingFigures[hole_uid] = body;
+    } else {
+      prezoomings[hole_uid] = body;
+    }
+  }
+  if (!pending) {
+    World.add(engine.world, body);
+  }
 }
 var k =0;
 var figures={};
@@ -94,30 +110,95 @@ var average_fps = 0;
 var socket;
 var bodies = {};
 var holes = [];
+var holes_by_id = {};
+var prezoomings = {};
+var pendingFigures = {};
+
+function preZoomBody(hole) {
+  console.log("PREZOOM", Date());
+  addFigure(hole.vertices.length, "body", "small", hole.uid);
+  var iters = 0;
+  (function zooom(){
+    if (iters < 48) {
+      window.requestAnimationFrame(zooom);
+    } else {
+      if (hole.uid in pendingFigures) {
+        prezoomings[hole.uid].uid = pendingFigures[hole.uid].uid;
+        bodies[pendingFigures[hole.uid].uid] = prezoomings[hole.uid];
+        delete prezoomings[hole.uid];
+        delete pendingFigures[hole.uid];
+        Body.setDensity(body, 1);
+        Body.set(bodies[pendingFigures[hole.uid].uid], "isSensor", false);
+      }
+    }
+    Body.scale(prezoomings[hole.uid], 1.05, 1.05);
+    iters++;
+  })();
+}
 
 function throwBody(figure_uid, hole_uid) {
+  console.log("THROW");
   socket.emit('put', {
       figure_uid: figure_uid,
       hole_uid: hole_uid
+    },
+    function(data) {
+      console.log(data);
+      if (data == "ok") {
+        $("#states p[data-uid='"+figure_uid+"']").remove();
+        bodies[figure_uid].purpose = "body_pushing";
+        console.log(bodies[figure_uid]);
+        Composite.removeBody(engine.world, bodies[figure_uid]);
+        if (figure_uid in bodies) {
+          removeFigureFromRenderer(bodies[figure_uid].id);
+        }
+      }
     }
   );
-  $("#states p[data-uid='"+figure_uid+"']").remove();
-  Composite.removeBody(engine.world, bodies[figure_uid]);
-  if (figure_uid in bodies) {
-    removeFigureFromRenderer(bodies[figure_uid].id);
-  }
 }
 
-Events.on(mouseconstraint, "enddrag", function(event){
-  console.log(event.body.position);
-  holes.forEach(function(hole) {
-    var diff_x = Math.abs(aimAxis(event.body.position, "x") - hole.position.x);
-    var diff_y = Math.abs(aimAxis(event.body.position, "y") - hole.position.y);
-    // if (event.body.position)
-    if (diff_x < 30 && diff_y < 30 && event.body.vertices.length == hole.vertices.length) {
-      throwBody(event.body.uid, hole.uid);
+var autoRotator = false;
+
+function findNearest(body, targets) {
+  var dist = 20000;
+  var result = false;
+  targets.forEach(function(target) {
+    var newdist = Math.abs(body.position.x - target.position.x) + Math.abs(body.position.y - target.position.y);
+    if (newdist < dist) {
+      result = target;
+      dist = newdist;
     }
   });
+  return [result, dist];
+}
+
+Events.on(mouseconstraint, "startdrag", function(event){
+  autoRotator = true;
+  var body = event.body;
+  var good_holes = [];
+  holes.forEach(function(hole) {
+    if (hole.vertices.length == body.vertices.length) {
+      good_holes.push(hole);
+    }
+  });
+  (function autoRotate(){
+    var nearest = findNearest(body, good_holes)[0];
+    var dist = findNearest(body, good_holes)[1];
+    if (nearest) {
+      Body.setAngle(body, body.angle - (body.angle - nearest.angle)/dist);
+      var diff_x = Math.abs(aimAxis(body.position, "x") - nearest.position.x);
+      var diff_y = Math.abs(aimAxis(body.position, "y") - nearest.position.y);
+      if (diff_x < 30 && diff_y < 30 && body.vertices.length == nearest.vertices.length && body.speed < 2 && Math.abs(body.angle - nearest.angle) < 0.1) {
+        throwBody(body.uid, nearest.uid);
+        autoRotator = false;
+      }
+    }
+    if (autoRotator) { window.requestAnimationFrame(autoRotate); }
+  })();
+});
+
+Events.on(mouseconstraint, "enddrag", function(event){
+  autoRotator = false;
 });
 
 $(document).ready(function(){
@@ -175,9 +256,15 @@ $(document).ready(function(){
   var namespace = '/game';
   console.log("CONNECT ATTEMPT");
   if (location.href.indexOf('file') > -1) {
-    socket = io.connect('http://rain.cancode.ru' + namespace);
+    socket = io.connect('http://rain.cancode.ru' + namespace, {
+      reconnection: false,
+      reconnect: false
+    });
   } else {
-    socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+    socket = io.connect('http://' + document.domain + ':' + location.port + namespace, {
+      reconnection: false,
+      reconnect: false
+    });
   }
   var started = false;
   socket.on("connect", function(){
@@ -208,8 +295,15 @@ $(document).ready(function(){
   });
 
   socket.on("new_figure", function(data) {
+    console.log("NEW_FIGURE", Date());
     var figure = data.data.figure;
     addFigure(figure.vertex, "body", figure.uid);
+  });
+
+  socket.on("figure_is_coming", function(data) {
+    var hole = holes_by_id[data.data.hole_uid];
+    console.log("prezoom");
+    preZoomBody(hole);
   });
 
   socket.on("remove_figure", function(uid) {
