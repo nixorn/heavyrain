@@ -64,8 +64,9 @@ def get_opponent(player_uid):
     """Если есть чувак с другой стороны - отдает чувака полностью
     если нет - None"""
     wall = get_wall_by_player(player_uid)
-    if len(wall['players']) == 1:
+    if wall and len(wall['players']) == 1:
         return None
     else:
         players = [p for p in wall['players'] if p != player_uid]
         return get_player(players[0])
+    return None
