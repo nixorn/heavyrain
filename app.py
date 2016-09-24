@@ -27,6 +27,7 @@ from lib.redis_stuff import (get_redis_value,
                              redis_players,
                              redis_figures,
                              redis_holes)
+from lib.figure_gen import generator
 import time
 
 
@@ -42,6 +43,7 @@ socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 
 FIGURE_PASSING_TIME = 1
+FIGURE_SPAMERS = {}
 
 @app.route('/')
 def index():
@@ -74,6 +76,9 @@ def connect():
     figures = [new_figure() for i in range(5)]
     player = new_player(figures=[f['uid'] for f in figures],
                         uid=request.sid)
+    spamer = generator(request.sid)
+    spamer.start()
+    FIGURE_SPAMERS[request.sid] = spamer
     emit('connect', {'data': 'OK'})
 
 
@@ -82,6 +87,11 @@ def disconnect():
     #from lib.player import destroy_player
     print('DISCONNECTING', request.sid)
     destroy_player(request.sid)
+    spamer = FIGURE_SPAMERS.get(request.sid)
+    if spamer:
+        spamer.stop()
+        del spamer
+        del FIGURE_SPAMERS[request.sid]
     print('DISCONNECTED', request.sid)
 
 
@@ -147,6 +157,9 @@ def put(data):
                player_to['uid'],
                player_from['uid'])
     emit('put_started')
+    emit('figure_is_coming',
+         {'data':{'hole_uid':hole['uid']}},
+         room=player_to['uid'])
     time.sleep(FIGURE_PASSING_TIME)
     if check_put_success(hole['uid']):
         print('GOING TO SEND PUT SUCESS')
