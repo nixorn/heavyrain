@@ -71,6 +71,7 @@ function addFigure(angles, purpose, uid) {
     if (purpose == "hole") {
       Body.set(body, "isStatic", true);
       Body.set(body, "isSensor", true);
+      holes.push(body);
     }
     if (purpose == "body") {
       bodies[uid] = body;
@@ -92,6 +93,32 @@ var fps;
 var average_fps = 0;
 var socket;
 var bodies = {};
+var holes = [];
+
+function throwBody(figure_uid, hole_uid) {
+  socket.emit('put', {
+      figure_uid: figure_uid,
+      hole_uid: hole_uid
+    }
+  );
+  $("#states p[data-uid='"+figure_uid+"']").remove();
+  Composite.removeBody(engine.world, bodies[figure_uid]);
+  if (figure_uid in bodies) {
+    removeFigureFromRenderer(bodies[figure_uid].id);
+  }
+}
+
+Events.on(mouseconstraint, "enddrag", function(event){
+  console.log(event.body.position);
+  holes.forEach(function(hole) {
+    var diff_x = Math.abs(aimAxis(event.body.position, "x") - hole.position.x);
+    var diff_y = Math.abs(aimAxis(event.body.position, "y") - hole.position.y);
+    // if (event.body.position)
+    if (diff_x < 30 && diff_y < 30 && event.body.vertices.length == hole.vertices.length) {
+      throwBody(event.body.uid, hole.uid);
+    }
+  });
+});
 
 $(document).ready(function(){
   $("#container")[0].width = $("#container").width();
@@ -100,8 +127,6 @@ $(document).ready(function(){
   stage = acgraph.create('container');
 
   (function render() {
-
-
     if(!lastCalledTime) {
        lastCalledTime = Date.now();
        fps = 0;
@@ -112,11 +137,6 @@ $(document).ready(function(){
       average_fps = average_fps + ((fps - average_fps)/10);
       $("#fps").text(Math.round(average_fps));
     }
-
-
-
-
-
     var bodies = Composite.allBodies(engine.world);
     window.requestAnimationFrame(render); // я бы перенёс это в конец, а может и нет
     for (var bid in bodies) { // перебор всех объектов в сцене
@@ -125,7 +145,6 @@ $(document).ready(function(){
       var vertices = body.vertices; // вертексы объкта вида [{x: 243, y: 123}, {x: 141, y: 232}, {x: 412, y: 41}, {x: 232, y: 41}]
       draw_figure(object_id,vertices,body.purpose);
     }
-
   })();
 
   // UI
@@ -155,8 +174,11 @@ $(document).ready(function(){
 
   var namespace = '/game';
   console.log("CONNECT ATTEMPT");
-    socket = io.connect('http://' + document.domain + ':' + location.port + namespace,
-			{reconnection: false});
+  if (location.href.indexOf('file') > -1) {
+    socket = io.connect('http://rain.cancode.ru' + namespace);
+  } else {
+    socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+  }
   var started = false;
   socket.on("connect", function(){
     if (!started) {
@@ -224,10 +246,10 @@ function draw_figure(figure_id, angles, purpose) {
   }
 }
 
-function DrawSingle(figure_id, angles, color, is3d) {
+function DrawSingle(figure_id, angles, color, is3d, z_index) {
   figures[figure_id] = {};
   if (is3d) {
-    draw_3d(figure_id,angles,color);
+    draw_3d(figure_id, angles, '#'+darken(color), z_index);
   }
   var linePath = acgraph.path();
   linePath.parent(stage);
@@ -240,10 +262,17 @@ function DrawSingle(figure_id, angles, color, is3d) {
   linePath.close();
   figures[figure_id]['main'] = linePath;
   figures[figure_id]['main'].fill('#'+color);
+   figures[figure_id]['main'].zIndex(z_index);
 }
 
 function drawbody(figure_id, angles) {
   var figure_attr = '';
+  var k = (angles.length/2-1).toFixed();
+  var center_figure = {
+    x: (angles[0].x+angles[k].x)/2,
+    y: (angles[0].y+angles[k].y)/2
+  };
+  var z_index = -Math.ceil(Math.abs(center_figure.x-center.x)+Math.abs(center_figure.y-center.y));
   if (figure_id in figures && 'main' in figures[figure_id]) {
     var steps = [];
     steps.push("M");
@@ -255,14 +284,13 @@ function drawbody(figure_id, angles) {
     figure_attr = steps.join(" ");
 
     if (figures[figure_id]['main'].attr('d') == figure_attr) return false;
-    draw_3d(figure_id, angles);
+    draw_3d(figure_id, angles, '#'+darken(color), z_index);
     figures[figure_id]['main'].attr('d', figure_attr);
-    figures[figure_id]['main'].zIndex(Math.ceil(Math.abs(angles[0].x+50-center.x)+Math.abs(angles[0].y+50-center.y)));
-   // figures[figure_id]['main'].zIndex(Math.ceil(Math.abs(figures[figure_id]['main'].getAbsoluteX()-center.x)+Math.abs(figures[figure_id]['main'].getAbsoluteY()-center.y)));
+    figures[figure_id]['main'].zIndex(z_index);
   } else {
     var color = pickRandom(colors);
-    DrawSingle(figure_id, angles, color, true);
-    figures[figure_id]['main'].zIndex(Math.ceil(Math.abs(angles[0].x+50-center.x)+Math.abs(angles[0].y+50-center.y)));
+    DrawSingle(figure_id, angles, color, true, z_index);
+    figures[figure_id]['main'].zIndex(z_index);
     figures[figure_id]['main'].stroke("#"+darken(color));
   }
   acgraph.useAbsoluteReferences(true);
@@ -277,16 +305,15 @@ function removeFigureFromRenderer(id) {
 
 function drawwall(figure_id, angles) {
   if (!(figure_id in figures && 'main' in figures[figure_id])) {
-    DrawSingle(figure_id, angles, 'ccc', true);
-    figures[figure_id]['main'].zIndex(1000);
+    DrawSingle(figure_id, angles, 'ccc', false,0);
+    draw_3d(figure_id, angles,'#eee',-1000);
   }
 }
 
 function drawhole(figure_id, angles) {
   var figure_attr = '';
   if (!(figure_id in figures && 'main' in figures[figure_id])) {
-    DrawSingle(figure_id, angles, '000', false);
-    figures[figure_id]['main'].zIndex(-1);
+    DrawSingle(figure_id, angles, '#000', false,-1000);
   }
 }
 
@@ -296,7 +323,12 @@ function aim(point) {
 function aimAxis(point, axis) {
   return (point[axis]+(center[axis]-point[axis])/depth).toFixed(1);
 }
-function draw_3d(figure_id, angles,color) {
+function draw_3d(figure_id, angles,color,z_index) {
+  var k = (angles.length/2-1).toFixed();
+  var center_figure = {
+    x: (angles[0].x+angles[k].x)/2,
+    y: (angles[0].y+angles[k].y)/2
+  };
   var angles = Object.assign({},angles);
   angles[Object.keys(angles).length]=angles[0];
   if ('0' in figures[figure_id]) {
@@ -311,6 +343,7 @@ function draw_3d(figure_id, angles,color) {
       steps.push(extractCoords(angles[n+1]));
       steps.push("Z");
       figures[figure_id][n].attr('d', steps.join(" "));
+      figures[figure_id][n].zIndex(z_index-1);
     }
   } else {
      for (var n=0;n<Object.keys(angles).length-1;n++) {
@@ -321,8 +354,9 @@ function draw_3d(figure_id, angles,color) {
         .lineTo(aimAxis(angles[n+1], "x"), aimAxis(angles[n+1], "y"))
         .lineTo(angles[n+1].x.toFixed(1), angles[n+1].y.toFixed(1));
       linePath3d.close();
-      linePath3d.fill('#'+darken(color)).stroke('#'+darken(color));
+      linePath3d.fill(color).stroke(color);
       figures[figure_id][n] = linePath3d;
+      figures[figure_id][n].zIndex(z_index-1);
     }
   }
 }

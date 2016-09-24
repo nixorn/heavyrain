@@ -76,10 +76,9 @@ def connect():
     figures = [new_figure() for i in range(5)]
     player = new_player(figures=[f['uid'] for f in figures],
                         uid=request.sid)
-
-    #spamer = generator(request.sid, request.namespace)
-    #spamer.start()
-    #FIGURE_SPAMERS[request.sid] = spamer
+    # spamer = generator(request.sid, socketio)
+    # spamer.start()
+    # FIGURE_SPAMERS[request.sid] = spamer
     emit('connect', {'data': 'OK'})
 
 
@@ -87,12 +86,12 @@ def connect():
 def disconnect():
     #from lib.player import destroy_player
     print('DISCONNECTING', request.sid)
-    destroy_player(request.sid)
-    spamer = FIGURE_SPAMERS.get(request.sid)
-    if spamer:
-        spamer.stop()
-        del spamer
-        del FIGURE_SPAMERS[request.sid]
+    # destroy_player(request.sid)
+    # spamer = FIGURE_SPAMERS.get(request.sid)
+    # if spamer:
+    #     spamer.stop()
+    #     del spamer
+    #     del FIGURE_SPAMERS[request.sid]
     print('DISCONNECTED', request.sid)
 
 
