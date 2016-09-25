@@ -222,7 +222,7 @@ $(document).ready(function(){
       console.log('opponent_left', data)
   });
   socket.on("opponent_update", function(data) {
-      console.log('opponent_left', data)
+      console.log('opponent_update', data)
   });
 
   // var figures = data.data.figures;

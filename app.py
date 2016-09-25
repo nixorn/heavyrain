@@ -102,6 +102,7 @@ def start():
                                connection=redis_figures) for fig in player['figures']]
     wall = get_free_wall(player=player)
     opponent = get_opponent(request.sid)
+    print('opponent of this guy is', opponent)
     holes = [get_redis_value(huid, redis_holes) for huid in wall['holes']]
     emit('start_game', {'data': {'player': player,
                                  'wall': wall,
@@ -179,7 +180,7 @@ def put(data):
                           figure['uid'],
                           player_from['uid'],
                           player_to['uid']):
-
+        
         emit('remove_figure', figure['uid'])
         emit('new_figure',
              {'data': {'figure': figure,
