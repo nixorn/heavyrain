@@ -69,8 +69,10 @@ def decrement(data):
     figure_uid = data.get('figure_uid')
     try:
         decrement(figure_uid)
+        return "ok"
         emit('decrement', {'data': 'OK'})
     except Exception as e:
+        return "server error"
         emit('decrement', {'data': 'FAIL',
                            'error': e.message})
 
@@ -181,7 +183,7 @@ def put(data):
                           figure['uid'],
                           player_from['uid'],
                           player_to['uid']):
-        
+
         emit('remove_figure', figure['uid'])
         emit('new_figure',
              {'data': {'figure': figure,

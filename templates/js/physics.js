@@ -61,10 +61,12 @@ $(document).ready(function(){
   walls.push(Bodies.rectangle(size.width/2, size.height, size.width, 5, { isStatic: true }));
   walls.push(Bodies.rectangle(size.width, size.height/2, 5, size.height, { isStatic: true }));
   walls.push(Bodies.rectangle(0, size.height/2, 5, size.height, { isStatic: true }));
-  walls.forEach(function(wall) {
+  for (var key in walls) {
+    var wall = walls[key];
     Body.set(wall, "color", WALL_COLORS.pop());
     Body.set(wall, "purpose", "wall");
+    Body.set(wall, "uid", "wall_"+key);
     knowAbout(wall);
-  });
+  }
   World.add(engine.world, walls);
 });

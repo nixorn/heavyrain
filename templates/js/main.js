@@ -12,13 +12,35 @@ function throwBody(body_uid, hole_uid) {
         var body = bodies_by_uid[body_uid];
         Composite.removeBody(engine.world, body);
         unknowAbout(body);
+      } else {
+        console.log("Socket.IO: put:", message);
       }
     }
   );
 }
 
-function decrementFigure(body_uid) {
+function decrementBody(body_uid) {
 
+}
+
+var bobr1 = new bobr('143jf',$('#container'));
+bobr1.beaver_run(400, "abc");
+
+function eatFigure(x, body_uid) {
+  for (var key in bodies) {
+
+  }
+  return true;
+}
+
+function decrementFigure(body_uid) {
+  socket.emit("decrement", {figure_uid: body_uid},
+    function(message) {
+      if (message == "ok") {
+        decrementBody(body_uid);
+      }
+    }
+  );
 }
 
 Events.on(mouseconstraint, "startdrag", function(event){
