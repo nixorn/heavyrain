@@ -8,22 +8,24 @@ function throwBody(body_uid, hole_uid) {
     },
     function(message) {
       if (message == 'ok') {
-        console.log("put ok");
-        var score = bodies_by_uid[body_uid].vertices.length;
-        if (score > 10) {
-          $("#score").text(parseInt($("#score").text())+1);
-        } else {
-          $("#score").text(parseInt($("#score").text())+score);
-        }
-
-        var body = bodies_by_uid[body_uid];
-        Composite.removeBody(engine.world, body);
-        unknowAbout(body);
+        console.log("Socket.IO: put:", message);
       } else {
         console.log("Socket.IO: put:", message);
       }
     }
   );
+
+  var score = bodies_by_uid[body_uid].vertices.length;
+  if (score > 10) {
+    $("#score").text(parseInt($("#score").text())+1);
+  } else {
+    $("#score").text(parseInt($("#score").text())+score);
+  }
+
+  var body = bodies_by_uid[body_uid];
+  Composite.removeBody(engine.world, body);
+  unknowAbout(body);
+
 }
 
 function decrementBody(body_uid) {
@@ -45,9 +47,6 @@ setInterval(function(){
   }
   var targ = pickRandom(good_bodies);
   var targ_uid = targ.uid;
-  console.log("want eat", targ_uid);
-  console.log("targ", targ);
-  console.log("at pos", targ.position.x);
 
   bobr_index = bobr_index + 1;
   var bobr_int = new bobr('143jf'+bobr_index,$('#container'));
@@ -68,14 +67,11 @@ function eatFigure(x, body_uid) {
     var eated = good_bodies[body_uid];
     var eated_x = eated.position.x;
     if (Math.abs(eated_x - x) < 200) {
-      console.log("eat!");
       return true;
     } else {
-      console.log("too far");
       return false;
     }
   } else {
-    console.log("no figure to eat");
     return false;
   }
 
@@ -105,10 +101,11 @@ Events.on(mouseconstraint, "startdrag", function(event){
     var nearest = findNearest(body, good_holes).body;
     var dist = findNearest(body, good_holes).dist;
     if (nearest) {
-      Body.setAngle(body, body.angle - (body.angle - nearest.angle)/dist);
+      Body.setAngle(body, body.angle - (body.angle - nearest.angle)/(dist*0.1));
       var diff_x = Math.abs(aimAxis(body.position, "x") - nearest.position.x);
       var diff_y = Math.abs(aimAxis(body.position, "y") - nearest.position.y);
-      if (diff_x < 30 && diff_y < 30 && body.vertices.length == nearest.vertices.length && body.speed < 2 && Math.abs(body.angle - nearest.angle) < 0.05) {
+      if (diff_x < 5 && diff_y < 5 && body.vertices.length == nearest.vertices.length && body.speed < 2 && Math.abs(body.angle - nearest.angle) < 0.05) {
+        console.log("throwing", body.uid, "to hole", nearest.uid);
         throwBody(body.uid, nearest.uid);
         autoRotator = false;
       }

@@ -167,8 +167,8 @@ function drawBody(options) {
           }
         }
         // Removing key
-        delete figures[figure_id];
         delete bodies_display[figure_id];
+        delete figures[figure_id];
       }
     }
   }

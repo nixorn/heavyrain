@@ -48,13 +48,14 @@ FIGURE_PASSING_TIME = 1
 FIGURE_SPAWN_TIMEOUT = 3
 FIGURE_SPAMERS = {}
 
+
 @app.route('/')
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
 
 
 @socketio.on('increm', namespace='/game')
-def increment(data):
+def increment_socket(data):
     figure_uid = data.get('figure_uid')
     try:
         increment(figure_uid)
@@ -65,7 +66,7 @@ def increment(data):
 
 
 @socketio.on('decrement', namespace='/game')
-def decrement(data):
+def decrement_socket(data):
     figure_uid = data.get('figure_uid')
     try:
         decrement(figure_uid)
@@ -83,11 +84,11 @@ def connect():
     figures = [new_figure() for i in range(5)]
     player = new_player(figures=[f['uid'] for f in figures],
                         uid=request.sid)
-    emit('connect', {'data': 'OK'})
+    return "ok"
 
 
 @socketio.on('disconnect', namespace='/game')
-def disconnect():
+def disconnect_socket():
     print('DISCONNECTING', request.sid)
     opponent = get_opponent(request.sid)
     if opponent:
@@ -114,12 +115,13 @@ def start():
                                  'opponent': opponent}})
     if opponent:
         emit('opponent_update',
-             {'data':{'opponent': player}},
+             {'data': {'opponent': player}},
              room=opponent['uid'])
 
 
 @socketio.on('set_name', namespace='/game')
 def set_name(data):
+    print("set_name")
     name = data.get('name')
     player = get_player(request.sid)
     player['name'] = name
@@ -127,9 +129,8 @@ def set_name(data):
     opponent = get_opponent(player['uid'])
     if opponent:
         emit('opponent_update',
-             {'data':{'opponent': player}},
+             {'data': {'opponent': player}},
              room=opponent['uid'])
-
 
 
 @socketio.on('put', namespace='/game')
@@ -171,7 +172,7 @@ def put(data):
     print('player_to', player_to)
     emit('put_started')
     emit('figure_is_coming',
-         {'data':{'hole_uid':hole['uid']}},
+         {'data': {'hole_uid': hole['uid']}},
          room=player_to['uid'])
     put_figure(hole['uid'],
                figure['uid'],
@@ -201,7 +202,7 @@ def give_me_figure(data):
     fig = new_figure(vertex)
     player['figures'].append(fig['uid'])
     set_redis_value(request.sid, player, redis_players)
-    return figure
+    return fig
 
 
 @socketio.on('hit', namespace='/game')
@@ -212,14 +213,14 @@ def hit(hole_uid):
     players = players.remove(hitman['uid'])
     if players:
         other_side_player_uid = players.pop()
-        emit('hit', {'data':{
+        emit('hit', {'data': {
             'hole': hole_uid}},
              room=other_side_player_uid)
 
 
-
 @socketio.on_error_default
 def default_error_handler(e):
+    print("HUGE ERROR THERE")
     raise e
 
 

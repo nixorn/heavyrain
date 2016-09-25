@@ -15,13 +15,15 @@ $(document).ready(function(){
   }
 
   var started = false;
-
+  var counter = 0;
   socket.on("connect", function(){
     console.log("Socket.IO: connected");
     if (!(started)) {
       socket.emit('start');
       started = true;
     }
+    counter++;
+    console.log("CONNECT", counter);
     $("#ok").on("click", function(){
       socket.emit("set_name", {name: $("#name").val()});
       $("#overlay").css('display', 'none');
@@ -128,6 +130,10 @@ $(document).ready(function(){
     Body.set(old_body, "uid", figure_uid);
     bodies_by_uid[figure_uid] = old_body;
     delete bodies_by_uid["from_hole_"+hole_uid];
+    Body.setStatic(bodies_by_uid[figure_uid], false);
+    Body.setMass(bodies_by_uid[figure_uid], 5);
+    Body.setVertices(bodies_by_uid[figure_uid], bodies_by_uid[figure_uid].vertices);
+    console.log("OK. NOW IT'S:", bodies_by_uid[figure_uid]);
   });
 
   socket.on("figure_is_coming", function(data) {
@@ -142,14 +148,9 @@ $(document).ready(function(){
       purpose: "body",
       uid: "from_hole_" + hole_uid
     });
-    console.log(body);
     Body.setStatic(body, true);
     World.add(engine.world, body);
     knowAbout(body);
-    setTimeout(function(){
-      Body.setStatic(body, false);
-      Body.setMass(body, 5);
-    }, 2000);
   });
 
   socket.on("remove_figure", function(uid) {
