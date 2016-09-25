@@ -17,6 +17,10 @@ function throwBody(body_uid, hole_uid) {
   );
 }
 
+function decrementFigure(body_uid) {
+
+}
+
 Events.on(mouseconstraint, "startdrag", function(event){
   autoRotator = true;
   var body = event.body;
