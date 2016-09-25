@@ -121,4 +121,8 @@ body {
   background-color: white;
   text-align: center;
   padding-top: 10rem;
+  font-size: 21px;
+}
+#overlay input, #overlay button {
+  font-size: 20px;
 }
