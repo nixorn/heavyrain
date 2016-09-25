@@ -26,6 +26,9 @@ function bobr(id,$svg_wrappper) {
 				'transition':'transform 600ms linear, -webkit-transform 600ms linear',
 				'will-change':'transform',
 			});
+			setTimeout(function(){
+				$bobr.css({'display': 'none !important'});
+			}, 600);
 			stop = true;
 		});
 	}

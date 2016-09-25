@@ -33,8 +33,11 @@ function decrementBody(body_uid) {
 var bobr1 = new bobr('143jf',$('#container'));
 bobr1.beaver_run(400, "abc");
 
+var bobr_index = 0;
 setInterval(function(){
-  bobr1.beaver_run(400, "abc");
+  bobr_index = bobr_index + 1;
+  var bobr = new bobr('143jf'+bobr_index,$('#container'));
+  bobr.beaver_run(400, "abc");
 }, 20000);
 
 function eatFigure(x, body_uid) {
