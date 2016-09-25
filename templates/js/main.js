@@ -35,16 +35,50 @@ bobr1.beaver_run(400, "abc");
 
 var bobr_index = 0;
 setInterval(function(){
-  bobr_index = bobr_index + 1;
-  var bobr_int = new bobr('143jf'+bobr_index,$('#container'));
-  bobr_int.beaver_run(400, "abc");
-}, 20000);
 
-function eatFigure(x, body_uid) {
   var good_bodies = [];
   for (var key in bodies) {
-    var body = bodies[key]
+    var body = bodies[key];
+    if (body.purpose == "body") {
+      good_bodies.push(body);
+    }
   }
+  var targ = pickRandom(good_bodies);
+  var targ_uid = targ.uid;
+  console.log("want eat", targ_uid);
+  console.log("targ", targ);
+  console.log("at pos", targ.position.x);
+
+  bobr_index = bobr_index + 1;
+  var bobr_int = new bobr('143jf'+bobr_index,$('#container'));
+  bobr_int.beaver_run(parseInt(targ.position.x), targ_uid);
+
+}, 20000);
+
+
+function eatFigure(x, body_uid) {
+  var good_bodies = {};
+  for (var key in bodies) {
+    var body = bodies[key];
+    if (body.purpose == "body") {
+      good_bodies[body.uid] = body;
+    }
+  }
+  if (body_uid in good_bodies) {
+    var eated = good_bodies[body_uid];
+    var eated_x = eated.position.x;
+    if (Math.abs(eated_x - x) < 200) {
+      console.log("eat!");
+      return true;
+    } else {
+      console.log("too far");
+      return false;
+    }
+  } else {
+    console.log("no figure to eat");
+    return false;
+  }
+
   return true;
 }
 

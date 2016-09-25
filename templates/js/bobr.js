@@ -27,7 +27,7 @@ function bobr(id,$svg_wrappper) {
 				'will-change':'transform',
 			});
 			setTimeout(function(){
-				$bobr.css({'display': 'none !important'});
+				$bobr.remove();
 			}, 600);
 			stop = true;
 		});
