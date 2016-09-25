@@ -9,6 +9,13 @@ function throwBody(body_uid, hole_uid) {
     function(message) {
       if (message == 'ok') {
         console.log("put ok");
+        var score = bodies_by_uid[body_uid].vertices.length;
+        if (score > 10) {
+          $("#score").text(parseInt($("#score").text())+1);
+        } else {
+          $("#score").text(parseInt($("#score").text())+score);
+        }
+
         var body = bodies_by_uid[body_uid];
         Composite.removeBody(engine.world, body);
         unknowAbout(body);
@@ -25,6 +32,10 @@ function decrementBody(body_uid) {
 
 var bobr1 = new bobr('143jf',$('#container'));
 bobr1.beaver_run(400, "abc");
+
+setInterval(function(){
+  bobr1.beaver_run(400, "abc");
+}, 20000);
 
 function eatFigure(x, body_uid) {
   for (var key in bodies) {

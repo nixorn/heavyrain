@@ -69,3 +69,17 @@ body, html {
 #states.active p.body {
   pointer-events: none;
 }
+body {
+  position: relative;
+}
+#score {
+  position: fixed;
+  left: 20px;
+  top: 20px;
+  font-size: 18px;
+  color: #333;
+  font-family: sans;
+}
+#score::before {
+  content: "Очки: ";
+}
