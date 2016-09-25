@@ -73,10 +73,46 @@ $(document).ready(function(){
     });
 
     if ("opponent" in data.data) {
-      $("#opponent").text(data.data.opponent.name);
+      if (data.data.opponent) {
+        var name = data.data.opponent.name;
+        if (name.length > 0) {
+          $("#opponent").text(name);
+          console.log("setting name to", name);
+        } else {
+          console.log("empty name");
+          $("#opponent").text("пока никого, ждём");
+        }
+      } else {
+        console.log("no name");
+        $("#opponent").text("пока никого, ждём");
+      }
+
+    } else {
+      console.log("no name");
+      $("#opponent").text("пока никого, ждём");
     }
 
-    // holes.forEach(function(hole){ addFigure(hole.vertex, "hole", hole.uid); });
+  });
+
+  socket.on("opponent_update", function(data) {
+    console.log("opponent_update");
+    console.log(data);
+    if ("opponent" in data.data) {
+      var name = data.data.opponent.name;
+      if (name.length < 1) {
+        $("#opponent").text("кто-то подключается...");
+      } else {
+        $("#opponent").text(name);
+      }
+    }
+    if ("opponent" in data) {
+      var name = data.opponent.name;
+      if (name.length < 1) {
+        $("#opponent").text("кто-то подключается...");
+      } else {
+        $("#opponent").text(name);
+      }
+    }
   });
 
   socket.on("new_figure", function(data) {

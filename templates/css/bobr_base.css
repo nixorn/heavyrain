@@ -5,6 +5,7 @@
 	position: absolute;
 	left: 0%;
 	bottom: -25px;
+  margin-left: -175px;
 	-webkit-transform: translateX(-100%);
 	  transform: translateX(-100%);
   -webkit-transition: -webkit-transform 150ms linear;
