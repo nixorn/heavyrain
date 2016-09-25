@@ -36,13 +36,14 @@ bobr1.beaver_run(400, "abc");
 var bobr_index = 0;
 setInterval(function(){
   bobr_index = bobr_index + 1;
-  var bobr = new bobr('143jf'+bobr_index,$('#container'));
-  bobr.beaver_run(400, "abc");
+  var bobr_int = new bobr('143jf'+bobr_index,$('#container'));
+  bobr_int.beaver_run(400, "abc");
 }, 20000);
 
 function eatFigure(x, body_uid) {
+  var good_bodies = [];
   for (var key in bodies) {
-
+    var body = bodies[key]
   }
   return true;
 }
