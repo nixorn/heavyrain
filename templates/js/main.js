@@ -1,5 +1,22 @@
 var autoRotator = false;
 
+function throwBody(body_uid, hole_uid) {
+  socket.emit('put',
+    {
+      figure_uid: body_uid,
+      hole_uid: hole_uid
+    },
+    function(message) {
+      if (message == 'ok') {
+        console.log("put ok");
+        var body = bodies_by_uid[body_uid];
+        Composite.removeBody(engine.world, body);
+        unknowAbout(body);
+      }
+    }
+  );
+}
+
 Events.on(mouseconstraint, "startdrag", function(event){
   autoRotator = true;
   var body = event.body;
@@ -27,8 +44,4 @@ Events.on(mouseconstraint, "startdrag", function(event){
 
 Events.on(mouseconstraint, "enddrag", function(event){
   autoRotator = false;
-});
-
-throwBody(function(body_uid, hole_uid){
-
 });

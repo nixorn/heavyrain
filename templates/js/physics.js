@@ -9,6 +9,7 @@ var bodies_by_uid = {};
 var bodies_display = {};
 
 var holes = [];
+var holes_by_uid = {};
 
 var size = {
   width: 800,
@@ -16,16 +17,14 @@ var size = {
 };
 
 function knowAbout(body) {
-  var key = body.id;
-  bodies[key] = body;
-  bodies_by_uid[key] = body;
-  bodies_display[key] = body;
+  bodies[body.id] = body;
+  bodies_by_uid[body.uid] = body;
+  bodies_display[body.id] = body;
 }
 
 function unknowAbout(body) {
-  var key = body.id;
-  delete bodies[key];
-  delete bodies_by_uid[key];
+  delete bodies[body.id];
+  delete bodies_by_uid[body.uid];
 }
 
 // Module aliases

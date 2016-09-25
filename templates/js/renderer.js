@@ -155,7 +155,7 @@ function drawBody(options) {
         if (figures[figure_id]['state'] == "fading_fast") {
           figures[figure_id]['offset'] = figures[figure_id]['offset'] + 0.1;
         } else {
-          figures[figure_id]['offset'] = figures[figure_id]['offset'] + 0.01;
+          figures[figure_id]['offset'] = figures[figure_id]['offset'] + 0.05;
         }
       } else {
         figures[figure_id]['offset'] = 1;
@@ -221,6 +221,9 @@ function aimAxis(point, axis) {
 }
 function aimDepth(point, target, depth) {
   return (point+(target-point)/depth).toFixed(1);
+}
+function aimDepthReverse(point, target, depth) {
+  return (point-(target-point)/depth).toFixed(1);
 }
 function draw_3d(figure_id, angles, color, z_index) {
   var k = (angles.length/2-1).toFixed();

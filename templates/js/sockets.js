@@ -14,9 +14,14 @@ $(document).ready(function(){
     socket = io.connect('http://' + document.domain + ':' + location.port + namespace, options);
   }
 
+  var started = false;
+
   socket.on("connect", function(){
     console.log("Socket.IO: connected");
-    socket.emit('start');
+    if (!(started)) {
+      socket.emit('start');
+      started = true;
+    }
   });
 
   socket.on("disconnect", function() { console.log("Socket.IO: disconnected"); });
@@ -58,6 +63,7 @@ $(document).ready(function(){
       Body.set(body, "isSensor", true);
       World.add(engine.world, body);
       holes.push(body);
+      holes_by_uid[hole.uid] = body;
       knowAbout(body);
     });
 
@@ -66,13 +72,34 @@ $(document).ready(function(){
 
   socket.on("new_figure", function(data) {
     console.log("Socket.IO: new_figure");
-    // var figure = data.data.figure;
-    // pendingFigures[data.data.hole_uid] = data.data.figure.uid;
+    var figure_uid = data.data.figure.uid;
+    var hole_uid = data.data.hole_uid;
+    var old_body = bodies_by_uid["from_hole_"+hole_uid];
+    Body.set(old_body, "uid", figure_uid);
+    bodies_by_uid[figure_uid] = old_body;
+    delete bodies_by_uid["from_hole_"+hole_uid];
   });
 
   socket.on("figure_is_coming", function(data) {
     console.log("Socket.IO: figure_is_coming");
-    // var hole = holes_by_id[data.data.hole_uid];
+    var hole_uid = data.data.hole_uid;
+    var x = parseFloat(aimDepthReverse(holes_by_uid[hole_uid].position.x, center.x, DEPTH));
+    var y = parseFloat(aimDepthReverse(holes_by_uid[hole_uid].position.y, center.y, DEPTH));
+    var body = generateBody({
+      x: x,
+      y: y,
+      angles: holes_by_uid[hole_uid].vertices.length,
+      purpose: "body",
+      uid: "from_hole_" + hole_uid
+    });
+    console.log(body);
+    Body.setStatic(body, true);
+    World.add(engine.world, body);
+    knowAbout(body);
+    setTimeout(function(){
+      Body.setStatic(body, false);
+      Body.setMass(body, 5);
+    }, 2000);
   });
 
   socket.on("remove_figure", function(uid) {
