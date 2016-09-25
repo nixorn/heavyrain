@@ -29,7 +29,7 @@ function drawFigure(options) {
       });
       break;
     case 'wall':
-      drawWall(figure_id, angles, color);
+      // drawWall(figure_id, angles, color);
       break;
     case 'hole':
       drawHole(figure_id, angles);
