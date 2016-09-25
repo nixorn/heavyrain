@@ -30,8 +30,8 @@ function decrementBody(body_uid) {
 
 }
 
-var bobr1 = new bobr('143jf',$('#container'));
-bobr1.beaver_run(400, "abc");
+// var bobr1 = new bobr('143jf',$('#container'));
+// bobr1.beaver_run(400, "abc");
 
 var bobr_index = 0;
 setInterval(function(){
@@ -53,7 +53,7 @@ setInterval(function(){
   var bobr_int = new bobr('143jf'+bobr_index,$('#container'));
   bobr_int.beaver_run(parseInt(targ.position.x), targ_uid);
 
-}, 20000);
+}, 15000);
 
 
 function eatFigure(x, body_uid) {
