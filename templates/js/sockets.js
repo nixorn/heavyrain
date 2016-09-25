@@ -115,6 +115,10 @@ $(document).ready(function(){
     }
   });
 
+  socket.on("opponent_left", function(){
+    $("#opponent").text("ушёл :[");
+  });
+
   socket.on("new_figure", function(data) {
     console.log("Socket.IO: new_figure");
     var figure_uid = data.data.figure.uid;
