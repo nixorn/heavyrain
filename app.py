@@ -54,9 +54,10 @@ def index():
 
 
 @socketio.on('increm', namespace='/game')
-def increment():
+def increment(data):
+    figure_uid = data.get('figure_uid')
     try:
-        increment(request.uid)
+        increment(figure_uid)
         emit('increment', {'data': 'OK'})
     except Exception as e:
         emit('increment', {'data': 'FAIL',
@@ -67,7 +68,7 @@ def increment():
 def decrement(data):
     figure_uid = data.get('figure_uid')
     try:
-        decrement(request.uid)
+        decrement(figure_uid)
         emit('decrement', {'data': 'OK'})
     except Exception as e:
         emit('decrement', {'data': 'FAIL',
