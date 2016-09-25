@@ -59,8 +59,9 @@ $(document).ready(function(){
   // Create walls
   var walls = [];
   walls.push(Bodies.rectangle(size.width/2, size.height, size.width, 5, { isStatic: true }));
-  walls.push(Bodies.rectangle(size.width, size.height/2, 5, size.height, { isStatic: true }));
-  walls.push(Bodies.rectangle(0, size.height/2, 5, size.height, { isStatic: true }));
+  walls.push(Bodies.rectangle(size.width, size.height/2, 5, size.height*3, { isStatic: true }));
+  walls.push(Bodies.rectangle(0, size.height/2, 5, size.height*3, { isStatic: true }));
+  walls.push(Bodies.rectangle(size.width/2, -300, size.width, 5, { isStatic: true }));
   for (var key in walls) {
     var wall = walls[key];
     Body.set(wall, "color", WALL_COLORS.pop());
