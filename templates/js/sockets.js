@@ -22,6 +22,10 @@ $(document).ready(function(){
       socket.emit('start');
       started = true;
     }
+    $("#ok").on("click", function(){
+      socket.emit("set_name", {name: $("#name").val()});
+      $("#overlay").css('display', 'none');
+    });
   });
 
   socket.on("disconnect", function() { console.log("Socket.IO: disconnected"); });
@@ -29,6 +33,7 @@ $(document).ready(function(){
   socket.on("put_failed", function() { console.log("Socket.IO: put_failed"); });
 
   socket.on('start_game', function(data) {
+    console.log(data);
     console.log("Socket.IO: start_game");
 
     data.data.figures.forEach(function(figure){
@@ -66,6 +71,10 @@ $(document).ready(function(){
       holes_by_uid[hole.uid] = body;
       knowAbout(body);
     });
+
+    if ("opponent" in data.data) {
+      $("#opponent").text(data.data.opponent.name);
+    }
 
     // holes.forEach(function(hole){ addFigure(hole.vertex, "hole", hole.uid); });
   });
