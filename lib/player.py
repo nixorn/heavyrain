@@ -47,7 +47,7 @@ def destroy_player(uid):
 
 
 def remove_figure(player_uid, figure_uid):
-    print('removing figure', figure_uid,' from player', player_uid)
+    print('removing figure', figure_uid, 'from player', player_uid)
     player = get_redis_value(player_uid, redis_players)
     print('player figures',  player['figures'])
     player['figures'].remove(figure_uid)
