@@ -8,8 +8,19 @@ body, html {
 html, body {
   height: 100%;
   overflow: hidden;
+  background-color: #eae8e3;
+}
+#bg {
+  position: absolute;
+  height: 95%;
+  width: 100%;
+
+  background-image: url('/images/bg.jpg');
+  background-size: cover;
+  background-position: center bottom;
 }
 #container {
+  position: absolute;
   height: 100%;
   width: 100%;
   box-sizing: border-box;
@@ -27,9 +38,6 @@ html, body {
   -moz-user-select: none;
   -o-user-select: none;
   user-select: none;
-  background-image: url('/images/bg.jpg');
-  background-size: cover;
-  background-position: center bottom;
 }
 #fps {
   font-family: monospace;
