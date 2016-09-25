@@ -1,0 +1,71 @@
+body, html {
+  min-height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  margin:0;
+  padding:0;
+}
+#container {
+  height: 370px;
+  width: 100%;
+  box-sizing: border-box;
+  margin:0;
+  padding:0;
+
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+#fps {
+  font-family: monospace;
+  padding: 15px;
+  font-size: 16px;
+}
+#fps::before {
+  content: "FPS: ";
+}
+#states {
+  font-family: monospace;
+  padding: 15px;
+  font-size: 16px;
+}
+#states p {
+  margin: 0;
+}
+#states p.hole {
+  cursor: default;
+  pointer-events: none;
+}
+#states p.body, #states p.hole.active {
+  cursor: pointer;
+}
+#states p.body:hover {
+  color: #0094ff;
+}
+#states p.body:hover::after {
+  content: " PUT ->";
+}
+#states p.body.picked {
+  font-weight: bold;
+}
+#states.active p.hole {
+  pointer-events: all;
+}
+#states.active p.hole:hover {
+  color: #ff004c;
+  cursor: pointer;
+}
+#states.active p.hole:hover::after {
+  content: " <- PUT";
+}
+#states.active p.body {
+  pointer-events: none;
+}

@@ -1,0 +1,71 @@
+// Consts
+var FIGURE_SIZE = 50;
+var COLORS = ["ff9b25", "ffcf00", "16cc90", "3cd1e6", "a74fe4"];
+var WALL_COLORS = ["eeeeee", "eeeeee", "ffffff"];
+
+// Physics stuff
+var bodies = {};
+var bodies_by_uid = {};
+var bodies_display = {};
+
+var holes = [];
+
+var size = {
+  width: 800,
+  height: 400
+};
+
+function knowAbout(body) {
+  var key = body.id;
+  bodies[key] = body;
+  bodies_by_uid[key] = body;
+  bodies_display[key] = body;
+}
+
+function unknowAbout(body) {
+  var key = body.id;
+  delete bodies[key];
+  delete bodies_by_uid[key];
+}
+
+// Module aliases
+var Engine = Matter.Engine,
+    World = Matter.World,
+    Bodies = Matter.Bodies,
+    MouseConstraint = Matter.MouseConstraint,
+    Events = Matter.Events,
+    Body = Matter.Body,
+    Composite = Matter.Composite;
+
+// Create an engine
+var engine = Engine.create();
+
+
+
+// Bind to mouse
+var mouseconstraint = MouseConstraint.create(engine, {
+  element: document.getElementById("container")
+});
+World.add(engine.world, [mouseconstraint]);
+
+// Run
+Engine.run(engine);
+
+$(document).ready(function(){
+  // Update container size
+  $("#container")[0].width = size.width = $("#container").width();
+  $("#container")[0].height = size.height = $("#container").height();
+  console.log("  Physics: world size is " + size.width + "x" + size.height);
+
+  // Create walls
+  var walls = [];
+  walls.push(Bodies.rectangle(size.width/2, size.height, size.width, 5, { isStatic: true }));
+  walls.push(Bodies.rectangle(size.width, size.height/2, 5, size.height, { isStatic: true }));
+  walls.push(Bodies.rectangle(0, size.height/2, 5, size.height, { isStatic: true }));
+  walls.forEach(function(wall) {
+    Body.set(wall, "color", WALL_COLORS.pop());
+    Body.set(wall, "purpose", "wall");
+    knowAbout(wall);
+  });
+  World.add(engine.world, walls);
+});
