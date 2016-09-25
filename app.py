@@ -89,12 +89,12 @@ def connect():
 @socketio.on('disconnect', namespace='/game')
 def disconnect():
     print('DISCONNECTING', request.sid)
-    destroy_player(request.sid)
     opponent = get_opponent(request.sid)
     if opponent:
         emit('opponent_left',
              {},
              room=opponent['uid'])
+    destroy_player(request.sid)
     print('DISCONNECTED', request.sid)
 
 

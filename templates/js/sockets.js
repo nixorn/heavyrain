@@ -116,6 +116,7 @@ $(document).ready(function(){
   });
 
   socket.on("opponent_left", function(){
+    console.log("opponent_left");
     $("#opponent").text("ушёл :[");
   });
 
