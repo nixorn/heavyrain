@@ -7,6 +7,7 @@ body, html {
 }
 html, body {
   height: 100%;
+  overflow: hidden;
 }
 #container {
   height: 100%;
@@ -34,6 +35,7 @@ html, body {
   font-family: monospace;
   padding: 15px;
   font-size: 16px;
+  display: none;
 }
 #fps::before {
   content: "FPS: ";
