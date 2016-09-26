@@ -11,12 +11,13 @@ function restoreBody(hole_uid) {
   console.log("restoring", body);
   Body.setStatic(body, false);
   Body.setMass(body, 5);
-  Body.setVertices(body, body.vertices);  
+  Body.setVertices(body, body.vertices);
   World.add(engine.world, body);
   knowAbout(body);
   if (body.id in figures) {
     figures[body.id]['state'] = 'growing_fast';
   }
+  delete bodies_saved_by_hole_uid[hole_uid];
 }
 
 function throwBody(body_uid, hole_uid) {
@@ -28,7 +29,6 @@ function throwBody(body_uid, hole_uid) {
     function(message) {
       if (message == 'ok') {
         console.log("Socket.IO: put:", message);
-        delete bodies_saved_by_hole_uid[hole_uid];
       } else {
         console.log("Socket.IO: put:", message);
       }
