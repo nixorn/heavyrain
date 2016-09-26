@@ -96,11 +96,11 @@ function drawBody(options) {
     x: (angles[0].x+angles[k].x)/2,
     y: (angles[0].y+angles[k].y)/2
   };
-  var z_index = 20000 - Math.ceil(
-    Math.abs(center.x-center_figure.x)
+  var z_index = 20000 - Math.ceil(Math.sqrt(
+    Math.pow(Math.abs(center.x-center_figure.x))
     +
-    Math.abs(center.y-center_figure.y)
-  );
+    Math.pow(Math.abs(center.y-center_figure.y))
+  ));
 
   if (!(figure_id in figures)) {
     figures[figure_id] = {};
