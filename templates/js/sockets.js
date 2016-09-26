@@ -133,7 +133,6 @@ $(document).ready(function(){
     Body.setStatic(bodies_by_uid[figure_uid], false);
     Body.setMass(bodies_by_uid[figure_uid], 5);
     Body.setVertices(bodies_by_uid[figure_uid], bodies_by_uid[figure_uid].vertices);
-    console.log("OK. NOW IT'S:", bodies_by_uid[figure_uid]);
   });
 
   socket.on("figure_is_coming", function(data) {
@@ -151,6 +150,12 @@ $(document).ready(function(){
     Body.setStatic(body, true);
     World.add(engine.world, body);
     knowAbout(body);
+  });
+
+  socket.on("hit", function(data) {
+    var hole_uid = data.data.hole;
+    console.log("hitted with", hole_uid);
+    restoreBody(hole_uid);
   });
 
   socket.on("remove_figure", function(uid) {

@@ -1,5 +1,21 @@
 var autoRotator = false;
 
+var bodies_saved_by_hole_uid = {};
+
+function saveUpBody(hole_uid, body) {
+  bodies_saved_by_hole_uid[hole_uid] = body;
+}
+
+function restoreBody(hole_uid) {
+  var body = bodies_saved_by_hole_uid[hole_uid];
+  console.log("restoring", body);
+  Body.setStatic(body, false);
+  Body.setMass(body, 5);
+  Body.setVertices(body, body.vertices);
+  World.add(engine.world, body);
+  knowAbout(body);
+}
+
 function throwBody(body_uid, hole_uid) {
   socket.emit('put',
     {
@@ -9,23 +25,18 @@ function throwBody(body_uid, hole_uid) {
     function(message) {
       if (message == 'ok') {
         console.log("Socket.IO: put:", message);
+        delete bodies_saved_by_hole_uid[hole_uid];
       } else {
         console.log("Socket.IO: put:", message);
+        // restoreBody(hole_uid);
       }
     }
   );
 
-  var score = bodies_by_uid[body_uid].vertices.length;
-  if (score > 10) {
-    $("#score").text(parseInt($("#score").text())+1);
-  } else {
-    $("#score").text(parseInt($("#score").text())+score);
-  }
-
   var body = bodies_by_uid[body_uid];
   Composite.removeBody(engine.world, body);
+  saveUpBody(hole_uid, body);
   unknowAbout(body);
-
 }
 
 function decrementBody(body_uid) {
@@ -91,9 +102,12 @@ function decrementFigure(body_uid) {
 Events.on(mouseconstraint, "startdrag", function(event){
   autoRotator = true;
   var body = event.body;
-  console.log(body.uid);
+  console.log("picked:", body.uid, body.purpose);
   if (body.uid.indexOf("from_hole") > -1) {
-    console.log("HIT: NOT IMPLEMENTED ON CLIENT");
+    var from_hole = body.uid.replace("from_hole_","");
+    socket.emit("hit", from_hole);
+    Composite.removeBody(engine.world, body);
+    unknowAbout(body);
   } else {
     var good_holes = [];
     holes.forEach(function(hole) {

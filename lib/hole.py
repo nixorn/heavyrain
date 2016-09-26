@@ -38,7 +38,7 @@ def break_put(hole_uid):
     hole['state'] = STATE_FREE
     hole['player_to'] = ''
     hole['player_from'] = ''
-    set_redis_value(hole_uid, hole, redis_figures)
+    set_redis_value(hole_uid, hole, redis_holes)
 
 
 def ensure_put_success(hole_uid, figure_uid, player_from, player_to):

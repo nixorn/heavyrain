@@ -210,7 +210,7 @@ def hit(hole_uid):
     break_put(hole_uid)
     hitman = get_redis_value(request.sid, redis_players)
     players = get_wall_by_hole(hole_uid)['players']
-    players = players.remove(hitman['uid'])
+    players.remove(hitman['uid'])
     if players:
         other_side_player_uid = players.pop()
         emit('hit', {'data': {
