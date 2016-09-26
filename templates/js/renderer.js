@@ -155,7 +155,7 @@ function drawBody(options) {
         if (figures[figure_id]['state'] == "fading_fast") {
           figures[figure_id]['offset'] = figures[figure_id]['offset'] + 0.1;
         } else {
-          figures[figure_id]['offset'] = figures[figure_id]['offset'] + 0.05;
+          figures[figure_id]['offset'] = figures[figure_id]['offset'] + 0.02;
         }
       } else {
         figures[figure_id]['offset'] = 1;

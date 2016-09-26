@@ -34,7 +34,8 @@ var Engine = Matter.Engine,
     MouseConstraint = Matter.MouseConstraint,
     Events = Matter.Events,
     Body = Matter.Body,
-    Composite = Matter.Composite;
+    Composite = Matter.Composite,
+    Vector = Matter.Vector;
 
 // Create an engine
 var engine = Engine.create();

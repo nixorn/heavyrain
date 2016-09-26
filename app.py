@@ -44,7 +44,7 @@ app.debug = True
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 
-FIGURE_PASSING_TIME = 1
+FIGURE_PASSING_TIME = 1.7
 FIGURE_SPAWN_TIMEOUT = 3
 FIGURE_SPAMERS = {}
 

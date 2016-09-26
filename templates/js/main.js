@@ -91,27 +91,34 @@ function decrementFigure(body_uid) {
 Events.on(mouseconstraint, "startdrag", function(event){
   autoRotator = true;
   var body = event.body;
-  var good_holes = [];
-  holes.forEach(function(hole) {
-    if (hole.vertices.length == body.vertices.length) {
-      good_holes.push(hole);
-    }
-  });
-  (function autoRotate(){
-    var nearest = findNearest(body, good_holes).body;
-    var dist = findNearest(body, good_holes).dist;
-    if (nearest) {
-      Body.setAngle(body, body.angle - (body.angle - nearest.angle)/(dist*0.1));
-      var diff_x = Math.abs(aimAxis(body.position, "x") - nearest.position.x);
-      var diff_y = Math.abs(aimAxis(body.position, "y") - nearest.position.y);
-      if (diff_x < 5 && diff_y < 5 && body.vertices.length == nearest.vertices.length && body.speed < 2 && Math.abs(body.angle - nearest.angle) < 0.05) {
-        console.log("throwing", body.uid, "to hole", nearest.uid);
-        throwBody(body.uid, nearest.uid);
-        autoRotator = false;
+  console.log(body.uid);
+  if (body.uid.indexOf("from_hole") > -1) {
+    console.log("HIT: NOT IMPLEMENTED ON CLIENT");
+  } else {
+    var good_holes = [];
+    holes.forEach(function(hole) {
+      if (hole.vertices.length == body.vertices.length) {
+        good_holes.push(hole);
       }
-    }
-    if (autoRotator) { window.requestAnimationFrame(autoRotate); }
-  })();
+    });
+    (function autoRotate(){
+      var nearest = findNearest(body, good_holes).body;
+      var dist = findNearest(body, good_holes).dist;
+      if (nearest) {
+        if (body.angle != nearest.angle) {
+          Body.setAngle(body, body.angle - (body.angle - nearest.angle)/(dist*0.1));
+        }
+        var diff_x = Math.abs(aimAxis(body.position, "x") - nearest.position.x);
+        var diff_y = Math.abs(aimAxis(body.position, "y") - nearest.position.y);
+        if (diff_x < 5 && diff_y < 5 && body.vertices.length == nearest.vertices.length && body.speed < 2 && Math.abs(body.angle - nearest.angle) < 0.05) {
+          console.log("throwing", body.uid, "to hole", nearest.uid);
+          throwBody(body.uid, nearest.uid);
+          autoRotator = false;
+        }
+      }
+      if (autoRotator) { window.requestAnimationFrame(autoRotate); }
+    })();
+  }
 });
 
 Events.on(mouseconstraint, "enddrag", function(event){
