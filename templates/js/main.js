@@ -11,8 +11,7 @@ function restoreBody(hole_uid) {
   console.log("restoring", body);
   Body.setStatic(body, false);
   Body.setMass(body, 5);
-  Body.setVertices(body, body.vertices);
-  Body.set(body, "speed", 0);
+  Body.setVertices(body, body.vertices);  
   World.add(engine.world, body);
   knowAbout(body);
   if (body.id in figures) {
@@ -127,7 +126,7 @@ Events.on(mouseconstraint, "startdrag", function(event){
         }
         var diff_x = Math.abs(aimAxis(body.position, "x") - nearest.position.x);
         var diff_y = Math.abs(aimAxis(body.position, "y") - nearest.position.y);
-        if (diff_x < 5 && diff_y < 5 && body.vertices.length == nearest.vertices.length && body.speed < 2 && Math.abs(body.angle - nearest.angle) < 0.05) {
+        if (diff_x < 5 && diff_y < 5 && body.vertices.length == nearest.vertices.length && body.speed < 5 && Math.abs(body.angle - nearest.angle) < 0.05) {
           console.log("throwing", body.uid, "to hole", nearest.uid);
           throwBody(body.uid, nearest.uid);
           autoRotator = false;
