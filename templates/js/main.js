@@ -12,8 +12,12 @@ function restoreBody(hole_uid) {
   Body.setStatic(body, false);
   Body.setMass(body, 5);
   Body.setVertices(body, body.vertices);
+  Body.set(body, "speed", 0);
   World.add(engine.world, body);
   knowAbout(body);
+  if (body.id in figures) {
+    figures[body.id]['state'] = 'growing_fast';
+  }
 }
 
 function throwBody(body_uid, hole_uid) {
@@ -28,7 +32,6 @@ function throwBody(body_uid, hole_uid) {
         delete bodies_saved_by_hole_uid[hole_uid];
       } else {
         console.log("Socket.IO: put:", message);
-        // restoreBody(hole_uid);
       }
     }
   );

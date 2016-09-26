@@ -141,9 +141,14 @@ function drawBody(options) {
   // ATTRACT OFFSET
   if ('offset' in figures[figure_id]) {
 
-    if (figures[figure_id]['state'] == "growing") {
+    if (figures[figure_id]['state'] == "growing" || figures[figure_id]['state'] == "growing_fast") {
       if (figures[figure_id]['offset'] > 0) {
-        figures[figure_id]['offset'] = figures[figure_id]['offset'] - 0.01 ;
+
+        if (figures[figure_id]['state'] == "growing_fast") {
+          figures[figure_id]['offset'] = figures[figure_id]['offset'] - 0.1;
+        } else {
+          figures[figure_id]['offset'] = figures[figure_id]['offset'] - 0.01;
+        }
       } else {
         figures[figure_id]['offset'] = 0;
         figures[figure_id]['state'] = "calm";
@@ -160,15 +165,18 @@ function drawBody(options) {
       } else {
         figures[figure_id]['offset'] = 1;
 
-        // Removing parts
-        for (var key in figures[figure_id]) {
-          if (!(key == 'state' || key == 'offset')) {
-            figures[figure_id][key].remove();
+        // Ensure that we don't need this body anymore
+        if (!(figure_id in bodies)) {
+          // Removing parts
+          for (var key in figures[figure_id]) {
+            if (!(key == 'state' || key == 'offset')) {
+              figures[figure_id][key].remove();
+            }
           }
+          // Removing key
+          delete bodies_display[figure_id];
+          delete figures[figure_id];
         }
-        // Removing key
-        delete bodies_display[figure_id];
-        delete figures[figure_id];
       }
     }
   }
